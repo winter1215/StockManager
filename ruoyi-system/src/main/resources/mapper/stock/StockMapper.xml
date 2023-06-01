@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StockMapper">
+    
+    <resultMap type="Stock" id="StockResult">
+        <result property="id"    column="id"    />
+        <result property="profileCode"    column="profile_code"    />
+        <result property="color"    column="color"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="weight"    column="weight"    />
+        <result property="profileName"    column="profile_name"    />
+        <result property="length"    column="length"    />
+        <result property="thickness"    column="thickness"    />
+        <result property="materialType"    column="material_type"    />
+        <result property="price"    column="price"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectStockVo">
+        select id, profile_code, color, quantity, weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
+    </sql>
+
+    <select id="selectStockList" parameterType="Stock" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        <where>  
+            <if test="profileCode != null  and profileCode != ''"> and profile_code = #{profileCode}</if>
+            <if test="color != null  and color != ''"> and color = #{color}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="weight != null "> and weight = #{weight}</if>
+            <if test="profileName != null  and profileName != ''"> and profile_name like concat('%', #{profileName}, '%')</if>
+            <if test="length != null "> and length = #{length}</if>
+            <if test="thickness != null "> and thickness = #{thickness}</if>
+            <if test="materialType != null "> and material_type = #{materialType}</if>
+            <if test="price != null "> and price = #{price}</if>
+            and is_delete = 0
+        </where>
+    </select>
+    
+    <select id="selectStockById" parameterType="Long" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
+        insert into stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="profileCode != null and profileCode != ''">profile_code,</if>
+            <if test="color != null and color != ''">color,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="weight != null">weight,</if>
+            <if test="profileName != null and profileName != ''">profile_name,</if>
+            <if test="length != null">length,</if>
+            <if test="thickness != null">thickness,</if>
+            <if test="materialType != null">material_type,</if>
+            <if test="price != null">price,</if>
+            create_time,
+            update_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="profileCode != null and profileCode != ''">#{profileCode},</if>
+            <if test="color != null and color != ''">#{color},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="profileName != null and profileName != ''">#{profileName},</if>
+            <if test="length != null">#{length},</if>
+            <if test="thickness != null">#{thickness},</if>
+            <if test="materialType != null">#{materialType},</if>
+            <if test="price != null">#{price},</if>
+            sysdate(),
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateStock" parameterType="Stock">
+        update stock
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="profileCode != null and profileCode != ''">profile_code = #{profileCode},</if>
+            <if test="color != null and color != ''">color = #{color},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="profileName != null and profileName != ''">profile_name = #{profileName},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="thickness != null">thickness = #{thickness},</if>
+            <if test="materialType != null">material_type = #{materialType},</if>
+            <if test="price != null">price = #{price},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="deleteStockById" parameterType="Long">
+        update stock set is_delete = 1 where id = #{id}
+    </update>
+
+    <update id="deleteStockByIds" parameterType="String">
+        UPDATE stock
+        SET is_delete = 1
+        WHERE id IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>
