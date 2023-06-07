@@ -44,7 +44,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectStockVo"/>
         where id = #{id}
     </select>
-        
+
+<!--  通过 profileCode 查询 stock  -->
+    <select id="selectStockByProfileCode" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        where profile_code = #{profileCode}
+    </select>
+
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
         insert into stock
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -103,6 +109,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="array" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+    </update>
+    <update id="updateStockQuantity">
+        update stock
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="quantity != null">quantity = #{quantity},</if>
+            update_time = sysdate()
+        </trim>
+        where profile_code = #{profileCode}
     </update>
 
 </mapper>

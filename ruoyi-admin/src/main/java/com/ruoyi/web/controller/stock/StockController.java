@@ -2,16 +2,12 @@ package com.ruoyi.web.controller.stock;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -69,13 +65,20 @@ public class StockController extends BaseController
         return success(stockService.selectStockById(id));
     }
 
+    @PreAuthorize("@ss.hasPermi('stock:stock:query')")
+    @GetMapping(value = "/getByCode")
+    public AjaxResult getInfoByProfileCode(@RequestParam String profileCode)
+    {
+        return success(stockService.selectStockByProfileCode(profileCode));
+    }
+
     /**
      * 新增库存
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:add')")
-    @Log(title = "库存", businessType = BusinessType.INSERT)
+    @ApiOperation("进货接口")
     @PostMapping
-    public AjaxResult add(@RequestBody Stock stock)
+    public AjaxResult add(@Validated @RequestBody Stock stock)
     {
         return toAjax(stockService.insertStock(stock));
     }
@@ -84,7 +87,6 @@ public class StockController extends BaseController
      * 修改库存
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:edit')")
-    @Log(title = "库存", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody Stock stock)
     {
@@ -95,7 +97,6 @@ public class StockController extends BaseController
      * 删除库存
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:remove')")
-    @Log(title = "库存", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

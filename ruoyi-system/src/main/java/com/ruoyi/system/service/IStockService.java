@@ -58,4 +58,9 @@ public interface IStockService
      * @return 结果
      */
     public int deleteStockById(Long id);
+
+    /**
+    * 通过 profileCode 获取 stock
+    */
+    Stock selectStockByProfileCode(String profileCode);
 }

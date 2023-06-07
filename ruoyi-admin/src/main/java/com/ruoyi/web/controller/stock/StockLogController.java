@@ -55,7 +55,7 @@ public class StockLogController extends BaseController
     public void export(HttpServletResponse response, StockLog stockLog)
     {
         List<StockLog> list = stockLogService.selectStockLogList(stockLog);
-        ExcelUtil<StockLog> util = new ExcelUtil<StockLog>(StockLog.class);
+        ExcelUtil<StockLog> util = new ExcelUtil<>(StockLog.class);
         util.exportExcel(response, list, "库存数据");
     }
 

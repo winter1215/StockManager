@@ -5,6 +5,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+
 /**
  * 库存对象 stock
  * 
@@ -20,6 +23,7 @@ public class Stock extends BaseEntity
 
     /** 型材编码 */
     @Excel(name = "型材编码")
+    @NotBlank(message = "型材编码不能为空")
     private String profileCode;
 
     /** 颜色 */
@@ -28,6 +32,7 @@ public class Stock extends BaseEntity
 
     /** 数量 */
     @Excel(name = "数量")
+    @Min(value = 0, message = "数量不合法")
     private Long quantity;
 
     /** 重量 */

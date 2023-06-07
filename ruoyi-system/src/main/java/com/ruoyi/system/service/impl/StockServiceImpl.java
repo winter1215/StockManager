@@ -1,12 +1,17 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import com.ruoyi.common.enums.StockLogType;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.system.domain.StockLog;
+import com.ruoyi.system.mapper.StockLogMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.StockMapper;
 import com.ruoyi.system.domain.Stock;
 import com.ruoyi.system.service.IStockService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 库存Service业务层处理
@@ -19,6 +24,9 @@ public class StockServiceImpl implements IStockService
 {
     @Autowired
     private StockMapper stockMapper;
+
+    @Autowired
+    private StockLogMapper stockLogMapper;
 
     /**
      * 查询库存
@@ -51,10 +59,34 @@ public class StockServiceImpl implements IStockService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertStock(Stock stock)
     {
-        stock.setCreateTime(DateUtils.getNowDate());
-        return stockMapper.insertStock(stock);
+        // 1. 数据的校验
+
+        // 2. 插入到 stock 表
+        String profileCode = stock.getProfileCode();
+        Stock preStock = stockMapper.selectStockByProfileCode(profileCode);
+
+        // 不存在则新增,存在则合并
+        Long changeQuantity = stock.getQuantity();
+        Long preStockQuantity = 0L;
+        if (preStock != null) {
+            preStockQuantity = preStock.getQuantity();
+            Long newQuantity = preStockQuantity + changeQuantity;
+            stock.setQuantity(newQuantity);
+            stockMapper.updateStockQuantity(stock);
+        } else {
+            stockMapper.insertStock(stock);
+        }
+
+        // 插入到 stockLog
+        StockLog stockLog = new StockLog();
+        stockLog.setQuantity(preStockQuantity);
+        stockLog.setChangeQuantity(changeQuantity);
+        stockLog.setLogType(StockLogType.STOCKING.getCode());
+        BeanUtils.copyProperties(stock, stockLog);
+        return stockLogMapper.insertStockLog(stockLog);
     }
 
     /**
@@ -92,5 +124,10 @@ public class StockServiceImpl implements IStockService
     public int deleteStockById(Long id)
     {
         return stockMapper.deleteStockById(id);
+    }
+
+    @Override
+    public Stock selectStockByProfileCode(String profileCode) {
+        return stockMapper.selectStockByProfileCode(profileCode);
     }
 }

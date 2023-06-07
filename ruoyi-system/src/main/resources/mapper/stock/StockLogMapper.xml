@@ -40,8 +40,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="materialType != null "> and material_type = #{materialType}</if>
             <if test="price != null "> and price = #{price}</if>
             <if test="logType != null "> and log_type = #{logType}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
             and is_delete = 0
-
         </where>
     </select>
     

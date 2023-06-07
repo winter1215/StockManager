@@ -43,6 +43,8 @@ public interface StockMapper
      */
     public int updateStock(Stock stock);
 
+    public int updateStockQuantity(Stock stock);
+
     /**
      * 删除库存
      * 
@@ -58,4 +60,6 @@ public interface StockMapper
      * @return 结果
      */
     public int deleteStockByIds(Long[] ids);
+
+    Stock selectStockByProfileCode(String profileCode);
 }
