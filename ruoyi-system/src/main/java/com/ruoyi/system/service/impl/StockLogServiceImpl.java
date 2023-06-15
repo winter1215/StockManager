@@ -91,6 +91,7 @@ public class StockLogServiceImpl implements IStockLogService
     @Override
     public int deleteStockLogById(Long id)
     {
+
         return stockLogMapper.deleteStockLogById(id);
     }
 }

@@ -43,6 +43,7 @@ public class StockLogController extends BaseController
     {
         startPage();
         List<StockLog> list = stockLogService.selectStockLogList(stockLog);
+        list.stream().forEach(item -> item.setWeight(item.getWeight() * item.getQuantity()));
         return getDataTable(list);
     }
 

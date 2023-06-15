@@ -11,7 +11,8 @@ public enum StockLogType
     STOCKING(0, "进货"),
     SHIP(1, "出货"),
     RESTOCK(2, "补货"),
-    USER_OPS(3, "用户操作");
+    USER_OPS(3, "用户操作"),
+    DELETE_OPS(4, "删除操作");
     private final Integer code;
     private final String info;
 

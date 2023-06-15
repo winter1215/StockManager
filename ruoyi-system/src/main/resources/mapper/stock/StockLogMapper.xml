@@ -88,6 +88,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             sysdate()
          </trim>
     </insert>
+    <insert id="insertStockLogs" parameterType="java.util.List">
+        INSERT INTO
+            stock_log
+        (profile_code,
+        color,
+        quantity,
+        change_quantity,
+        weight,
+        profile_name,
+        length,
+        thickness,
+        material_type,
+        price,
+        log_type,
+        create_time,
+        update_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.profileCode}, #{item.color}, #{item.quantity}, #{item.changeQuantity}, #{item.weight}, #{item.profileName},
+            #{item.length}, #{item.thickness}, #{item.materialType}, #{item.price}, #{item.logType}, sysdate(), sysdate())
+        </foreach>
+    </insert>
 
     <update id="updateStockLog" parameterType="StockLog">
         update stock_log

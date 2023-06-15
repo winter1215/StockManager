@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 /**
  * 库存对象 stock
@@ -37,7 +38,10 @@ public class Stock extends BaseEntity
 
     /** 重量 */
     @Excel(name = "重量")
-    private Long weight;
+    private Float weight;
+
+    @Excel(name = "总重量")
+    private Float totalWeight;
 
     /** 型材名称 */
     @Excel(name = "型材名称")
@@ -45,11 +49,11 @@ public class Stock extends BaseEntity
 
     /** 长度 */
     @Excel(name = "长度")
-    private Long length;
+    private Float length;
 
     /** 厚度 */
     @Excel(name = "厚度")
-    private Long thickness;
+    private Float thickness;
 
     /** 材料类型：0 -> 铝材(支), 1 -> 配件(件) */
     @Excel(name = "单位", readConverterExp = "0=支,1=件")
@@ -57,7 +61,7 @@ public class Stock extends BaseEntity
 
     /** 型材进货单价 */
     @Excel(name = "型材进货单价")
-    private Long price;
+    private BigDecimal price;
 
     /** 逻辑删除: 0 -> 未删除, 1 -> 删除 */
     private Integer isDelete;
@@ -98,16 +102,24 @@ public class Stock extends BaseEntity
     {
         return quantity;
     }
-    public void setWeight(Long weight) 
-    {
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public Float getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Float totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public void setWeight(Float weight) {
         this.weight = weight;
     }
 
-    public Long getWeight() 
-    {
-        return weight;
-    }
-    public void setProfileName(String profileName) 
+    public void setProfileName(String profileName)
     {
         this.profileName = profileName;
     }
@@ -116,25 +128,29 @@ public class Stock extends BaseEntity
     {
         return profileName;
     }
-    public void setLength(Long length) 
-    {
+
+
+    public Float getLength() {
+        return length;
+    }
+
+    public void setLength(Float length) {
         this.length = length;
     }
 
-    public Long getLength() 
-    {
-        return length;
+    public Float getThickness() {
+        return thickness;
     }
-    public void setThickness(Long thickness) 
-    {
+
+    public void setThickness(Float thickness) {
         this.thickness = thickness;
     }
 
-    public Long getThickness() 
-    {
-        return thickness;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
-    public void setMaterialType(Integer materialType) 
+
+    public void setMaterialType(Integer materialType)
     {
         this.materialType = materialType;
     }
@@ -143,12 +159,9 @@ public class Stock extends BaseEntity
     {
         return materialType;
     }
-    public void setPrice(Long price) 
-    {
-        this.price = price;
-    }
 
-    public Long getPrice() 
+
+    public BigDecimal getPrice()
     {
         return price;
     }

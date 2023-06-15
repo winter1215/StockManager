@@ -19,6 +19,7 @@ public interface StockMapper
      */
     public Stock selectStockById(Long id);
 
+    public List<Stock> selectStockByIds(Long[] ids);
     /**
      * 查询库存列表
      * 

@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="color"    column="color"    />
         <result property="quantity"    column="quantity"    />
         <result property="weight"    column="weight"    />
+        <result property="totalWeight"    column="total_weight"    />
         <result property="profileName"    column="profile_name"    />
         <result property="length"    column="length"    />
         <result property="thickness"    column="thickness"    />
@@ -21,12 +22,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStockVo">
-        select id, profile_code, color, quantity, weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
+        select id, profile_code, color, quantity, weight, total_weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
     </sql>
 
     <select id="selectStockList" parameterType="Stock" resultMap="StockResult">
         <include refid="selectStockVo"/>
-        <where>  
+        <where>
             <if test="profileCode != null  and profileCode != ''"> and profile_code = #{profileCode}</if>
             <if test="color != null  and color != ''"> and color = #{color}</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
@@ -49,6 +50,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectStockByProfileCode" resultMap="StockResult">
         <include refid="selectStockVo"/>
         where profile_code = #{profileCode}
+    </select>
+    <select id="selectStockByIds" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        WHERE id IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">

@@ -1,7 +1,9 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.ruoyi.common.enums.StockLogType;
+import com.ruoyi.common.exception.base.BaseException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.system.domain.StockLog;
 import com.ruoyi.system.mapper.StockLogMapper;
@@ -63,7 +65,6 @@ public class StockServiceImpl implements IStockService
     public int insertStock(Stock stock)
     {
         // 1. 数据的校验
-
         // 2. 插入到 stock 表
         String profileCode = stock.getProfileCode();
         Stock preStock = stockMapper.selectStockByProfileCode(profileCode);
@@ -75,17 +76,22 @@ public class StockServiceImpl implements IStockService
             preStockQuantity = preStock.getQuantity();
             Long newQuantity = preStockQuantity + changeQuantity;
             stock.setQuantity(newQuantity);
+            // 更新总重量
+            Float totalWeight = newQuantity * preStock.getWeight();
+            stock.setTotalWeight(totalWeight);
             stockMapper.updateStockQuantity(stock);
         } else {
+            Float totalWeight = stock.getQuantity() * stock.getWeight();
+            stock.setTotalWeight(totalWeight);
             stockMapper.insertStock(stock);
         }
 
         // 插入到 stockLog
         StockLog stockLog = new StockLog();
-        stockLog.setQuantity(preStockQuantity);
+        BeanUtils.copyProperties(stock, stockLog);
         stockLog.setChangeQuantity(changeQuantity);
         stockLog.setLogType(StockLogType.STOCKING.getCode());
-        BeanUtils.copyProperties(stock, stockLog);
+        stockLog.setQuantity(preStockQuantity);
         return stockLogMapper.insertStockLog(stockLog);
     }
 
@@ -96,9 +102,23 @@ public class StockServiceImpl implements IStockService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateStock(Stock stock)
     {
-        stock.setUpdateTime(DateUtils.getNowDate());
+        // 插入到stockLog
+        String profileCode = stock.getProfileCode();
+        if (profileCode == null || profileCode.length() == 0) throw new BaseException("参数错误");
+        Stock preStock = stockMapper.selectStockByProfileCode(profileCode);
+        StockLog stockLog = new StockLog();
+        BeanUtils.copyProperties(stock, stockLog);
+        stockLog.setChangeQuantity(stock.getQuantity() - preStock.getQuantity());
+        stockLog.setLogType(StockLogType.USER_OPS.getCode());
+        stockLog.setQuantity(preStock.getQuantity());
+        stockLogMapper.insertStockLog(stockLog);
+
+        // 更新总重量
+        Float totalWeight = stock.getQuantity() * stock.getWeight();
+        stock.setTotalWeight(totalWeight);
         return stockMapper.updateStock(stock);
     }
 
@@ -109,8 +129,21 @@ public class StockServiceImpl implements IStockService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteStockByIds(Long[] ids)
     {
+        if (ids == null || ids.length == 0) throw new BaseException("参数错误");
+        List<Stock> stocks = stockMapper.selectStockByIds(ids);
+        List<StockLog> stockLogs = new ArrayList<>();
+        stocks.stream().forEach(item -> {
+            if (item == null) return ;
+            StockLog stockLog = new StockLog();
+            BeanUtils.copyProperties(item, stockLog);
+            stockLog.setChangeQuantity(0L);
+            stockLog.setLogType(StockLogType.DELETE_OPS.getCode());
+            stockLogs.add(stockLog);
+        });
+        stockLogMapper.insertStockLogs(stockLogs);
         return stockMapper.deleteStockByIds(ids);
     }
 
@@ -121,13 +154,27 @@ public class StockServiceImpl implements IStockService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteStockById(Long id)
     {
+        // 添加删除日志
+        Stock stock = stockMapper.selectStockById(id);
+        if (stock == null) throw new BaseException("删除的库存不存在");
+        StockLog stockLog = new StockLog();
+        BeanUtils.copyProperties(stock, stockLog);
+        stockLog.setChangeQuantity(0L);
+        stockLog.setLogType(StockLogType.DELETE_OPS.getCode());
+        stockLogMapper.insertStockLog(stockLog);
         return stockMapper.deleteStockById(id);
     }
 
     @Override
     public Stock selectStockByProfileCode(String profileCode) {
         return stockMapper.selectStockByProfileCode(profileCode);
+    }
+
+    @Override
+    public List<Stock> selectStockListByIds(Long[] ids) {
+        return stockMapper.selectStockByIds(ids);
     }
 }

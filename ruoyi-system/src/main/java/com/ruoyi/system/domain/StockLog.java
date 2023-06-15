@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -39,7 +40,7 @@ public class StockLog extends BaseEntity
 
     /** 重量 */
     @Excel(name = "重量")
-    private Long weight;
+    private Float weight;
 
     /** 型材名称 */
     @Excel(name = "型材名称")
@@ -47,11 +48,11 @@ public class StockLog extends BaseEntity
 
     /** 长度 */
     @Excel(name = "长度")
-    private Long length;
+    private Float length;
 
     /** 厚度 */
     @Excel(name = "厚度")
-    private Long thickness;
+    private Float thickness;
 
     /** 材料类型：0 -&gt; 铝材(支), 1 -&gt; 配件(件) */
     @Excel(name = "单位", readConverterExp = "0=支,1=件")
@@ -59,7 +60,7 @@ public class StockLog extends BaseEntity
 
     /** 型材进货单价 */
     @Excel(name = "型材进货单价")
-    private Long price;
+    private BigDecimal price;
 
     /** 日志类型: 0 -&gt; 进货, 1 -&gt; 出货, 2 -&gt; 补货, 3 -&gt; 用户操作 */
     @Excel(name = "日志类型", readConverterExp = "0=进货,1=出货,2=补货,3=用户操作")
@@ -113,15 +114,7 @@ public class StockLog extends BaseEntity
     {
         return changeQuantity;
     }
-    public void setWeight(Long weight)
-    {
-        this.weight = weight;
-    }
 
-    public Long getWeight()
-    {
-        return weight;
-    }
     public void setProfileName(String profileName)
     {
         this.profileName = profileName;
@@ -131,24 +124,8 @@ public class StockLog extends BaseEntity
     {
         return profileName;
     }
-    public void setLength(Long length)
-    {
-        this.length = length;
-    }
 
-    public Long getLength()
-    {
-        return length;
-    }
-    public void setThickness(Long thickness)
-    {
-        this.thickness = thickness;
-    }
 
-    public Long getThickness()
-    {
-        return thickness;
-    }
     public void setMaterialType(Integer materialType)
     {
         this.materialType = materialType;
@@ -158,15 +135,7 @@ public class StockLog extends BaseEntity
     {
         return materialType;
     }
-    public void setPrice(Long price)
-    {
-        this.price = price;
-    }
 
-    public Long getPrice()
-    {
-        return price;
-    }
     public void setLogType(Integer logType)
     {
         this.logType = logType;
@@ -184,6 +153,38 @@ public class StockLog extends BaseEntity
     public Integer getIsDelete()
     {
         return isDelete;
+    }
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Float weight) {
+        this.weight = weight;
+    }
+
+    public Float getLength() {
+        return length;
+    }
+
+    public void setLength(Float length) {
+        this.length = length;
+    }
+
+    public Float getThickness() {
+        return thickness;
+    }
+
+    public void setThickness(Float thickness) {
+        this.thickness = thickness;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     @Override

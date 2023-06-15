@@ -58,4 +58,6 @@ public interface StockLogMapper
      * @return 结果
      */
     public int deleteStockLogByIds(Long[] ids);
+
+    public int insertStockLogs(List<StockLog> stockLogs);
 }

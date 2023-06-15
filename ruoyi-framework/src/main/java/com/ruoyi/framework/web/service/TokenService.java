@@ -145,7 +145,12 @@ public class TokenService
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
         // 根据uuid将loginUser缓存
         String userKey = getTokenKey(loginUser.getToken());
-        redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
+        // 如果 expireTime 为 -1 ，表示登录永久不过期
+        if (expireTime == -1) {
+            redisCache.setCacheObject(userKey, loginUser);
+        } else {
+            redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
+        }
     }
 
     /**

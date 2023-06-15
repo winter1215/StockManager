@@ -48,9 +48,16 @@ public class StockController extends BaseController
     @PreAuthorize("@ss.hasPermi('stock:stock:export')")
     @Log(title = "库存", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Stock stock)
+    public void export(HttpServletResponse response, Stock stock, Long[] ids)
     {
-        List<Stock> list = stockService.selectStockList(stock);
+        // 导出清单中的数据
+        List<Stock> list;
+        if (ids != null && ids.length != 0) {
+            list = stockService.selectStockListByIds(ids);
+        } else {
+            // 条件
+            list = stockService.selectStockList(stock);
+        }
         ExcelUtil<Stock> util = new ExcelUtil<>(Stock.class);
         util.exportExcel(response, list, "库存数据");
     }
@@ -80,6 +87,7 @@ public class StockController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody Stock stock)
     {
+
         return toAjax(stockService.insertStock(stock));
     }
 
