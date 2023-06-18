@@ -69,16 +69,19 @@
     </el-dialog>
     <!-- 清单抽屉 -->
     <el-drawer title="出货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
-      <el-col :span="1.5">
+      <el-col :span="1.5" style="margin-right: 20px">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
           v-hasPermi="['stock:stock:export']">导出清单</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="printStockout"
-          v-hasPermi="['stock:stock:export']">打印清单</el-button>
+        <el-switch v-model="isList" active-text="清单" inactive-text="打印预览" />
       </el-col>
-      
-      <StockoutDrawer :stockoutList="stockoutList" @handleMoveOut="handleMoveOut"/>
+
+      <div style="margin-top: 20px">
+        <keep-alive>
+          <component :is="currentComponent" ref="printer" :dataProp="stockoutList" @handleMoveOut="handleMoveOut"></component>
+        </keep-alive>
+      </div>
     </el-drawer>
 
     <!-- 库存表格 -->
@@ -117,11 +120,15 @@
 import { listStock } from "@/api/stock/stock";
 import { genExcel } from '@/utils/excel'
 import StockoutDrawer from "../components/StockoutDrawer.vue";
+import PrintDrawer from "../components/PrintDrawer.vue";
 
 export default {
   name: "Stock",
   data() {
     return {
+      // drawer 动态路由
+      isList: true,
+      currentComponent: StockoutDrawer,
       // 遮罩层
       loading: true,
       // 抽屉弹出
@@ -184,12 +191,20 @@ export default {
   },
 
   components: {
-    StockoutDrawer
+    StockoutDrawer,
+    PrintDrawer
   },
 
   created() {
     this.getList();
   },
+
+  watch: {
+    isList(newVal) {
+      this.currentComponent = newVal ? StockoutDrawer : PrintDrawer;
+    }
+  },
+
   methods: {
     /** 查询库存列表 */
     getList() {
@@ -242,6 +257,8 @@ export default {
               return;
             }
 
+            // update totalWeight
+            this.form.totalWeight = this.form.quantity * this.form.weight;
             this.stockoutList.push(this.form);
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变

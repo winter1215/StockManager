@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-table :data="stockoutList" height="700">
+        <el-table :data="dataProp" height="700">
             <el-table-column label="型材编码" align="center" prop="profileCode" />
             <el-table-column label="型材名称" align="center" prop="profileName" />
             <el-table-column label="颜色" align="center" prop="color" />
@@ -31,9 +31,7 @@ export default {
 
         }
     },
-    props: {
-        stockoutList: Array,
-    },
+    props: ['dataProp'],
     methods: {
 
     },

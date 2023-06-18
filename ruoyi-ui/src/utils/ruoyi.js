@@ -45,6 +45,50 @@ export function parseTime(time, pattern) {
   })
   return time_str
 }
+export function numberToChineseAmount(number) {
+  const digits = '零壹贰叁肆伍陆柒捌玖';
+  const units = '个拾佰仟万亿';
+
+  const numStr = String(number); // 将数字转换为字符串
+  const numArr = numStr.split('.'); // 分离整数部分和小数部分
+  let integerPart = numArr[0]; // 整数部分
+  let decimalPart = numArr[1]; // 小数部分（可选）
+
+  // 转换整数部分
+  let result = '';
+  let unitIndex = 0; // 单位索引
+  for (let i = integerPart.length - 1; i >= 0; i--) {
+    const digit = digits[Number(integerPart[i])];
+    const unit = unitIndex < units.length ? units[unitIndex] : '';
+    if (digit !== '零') {
+      result = digit + unit + result;
+    } else {
+      // 处理连续的零
+      if (result[0] !== '零') {
+        result = digit + result;
+      }
+    }
+    unitIndex++;
+  }
+
+  // 转换小数部分（如果有）
+  if (decimalPart) {
+    const decimalDigits = decimalPart.padEnd(2, '0').substring(0, 2); // 补齐小数位数并截取前两位
+    const jiao = digits[Number(decimalDigits[0])];
+    const fen = digits[Number(decimalDigits[1])];
+    if (jiao !== '零') {
+      result += jiao + '角';
+    }
+    if (fen !== '零') {
+      result += fen + '分';
+    }
+  }
+
+  // 添加“元”字和“整”字（如果没有小数部分）
+  result += decimalPart ? '元' : '元整';
+
+  return result;
+}
 
 // 表单重置
 export function resetForm(refName) {
