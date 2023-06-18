@@ -70,6 +70,12 @@ public class StockLogServiceImpl implements IStockLogService
         return stockLogMapper.insertStockLog(stockLog);
     }
 
+    public int insertStockLogs(List<StockLog> stockLogs)
+    {
+        return stockLogMapper.insertStockLogs(stockLogs);
+    }
+
+
     /**
      * 修改库存
      * 

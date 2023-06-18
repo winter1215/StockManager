@@ -174,7 +174,17 @@ public class StockServiceImpl implements IStockService
     }
 
     @Override
+    public List<Stock> selectStockByProfileCodes(List<String> profileCodeList) {
+        return stockMapper.selectStockByProfileCodes(profileCodeList);
+    }
+
+    @Override
     public List<Stock> selectStockListByIds(Long[] ids) {
         return stockMapper.selectStockByIds(ids);
+    }
+
+    @Override
+    public int updateStocks(List<Stock> updatedStockList) {
+        return stockMapper.batchUpdateStock(updatedStockList);
     }
 }

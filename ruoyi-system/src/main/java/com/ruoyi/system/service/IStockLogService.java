@@ -36,6 +36,12 @@ public interface IStockLogService
     public int insertStockLog(StockLog stockLog);
 
     /**
+     * 批量新增库存日志
+     * @param stockLogs
+     * @return
+     */
+    public int insertStockLogs(List<StockLog> stockLogs);
+    /**
      * 修改库存
      * 
      * @param stockLog 库存
@@ -59,6 +65,7 @@ public interface IStockLogService
      */
     public int deleteStockLogById(Long id);
 
+
     /**
     * 删除待处理的列表
     */
@@ -68,4 +75,5 @@ public interface IStockLogService
     * 确认待处理的列表
     */
     int useDraftById(Long id);
+
 }

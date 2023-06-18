@@ -1,11 +1,21 @@
 package com.ruoyi.web.controller.stock;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.exception.base.BaseException;
+import com.ruoyi.system.domain.StockLog;
+import com.ruoyi.system.domain.StockOutInfo;
+import com.ruoyi.system.domain.dto.StockOutDto;
+import com.ruoyi.system.service.IStockLogService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
@@ -23,12 +33,16 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-05-31
  */
+@Api("库存管理")
 @RestController
 @RequestMapping("/stock/stock")
 public class StockController extends BaseController
 {
     @Autowired
     private IStockService stockService;
+
+    @Autowired
+    private IStockLogService stockLogService;
 
     /**
      * 查询库存列表
@@ -66,6 +80,7 @@ public class StockController extends BaseController
      * 获取库存详细信息
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:query')")
+    @ApiOperation("获取库存详细详细接口")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -95,6 +110,7 @@ public class StockController extends BaseController
      * 修改库存
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:edit')")
+    @ApiOperation("修改库存接口")
     @PutMapping
     public AjaxResult edit(@RequestBody Stock stock)
     {
@@ -105,9 +121,69 @@ public class StockController extends BaseController
      * 删除库存
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:remove')")
+    @ApiOperation("删除库存接口")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(stockService.deleteStockByIds(ids));
+    }
+
+    /**
+     * 出货库存
+     * @param
+     * @return
+     */
+    @PreAuthorize("@ss.hasPermi('stock:stock:out')")
+    @ApiOperation("打印出货接口")
+    @PostMapping("/out")
+    public AjaxResult out(@RequestBody StockOutDto stockOutDto)
+    {
+        // 传入数据里面存了型材编码 和 出货的数量 以及 出货的状态
+        List<StockOutInfo> stockOutInfos = stockOutDto.getStockOutInfoList();
+        Integer state = stockOutDto.getState();
+
+        // 1. 用型材编码查到对应的stock记录
+        List<String> profileCodeList = stockOutInfos.stream()
+                .map(StockOutInfo::getProfileCode)
+                .collect(Collectors.toList());
+        List<Long> changeQuantityList = stockOutInfos.stream()
+                .map(StockOutInfo::getChangeQuantity)
+                .collect(Collectors.toList());
+        List<Stock> stockList = stockService.selectStockByProfileCodes(profileCodeList);
+
+        if (CollectionUtils.isEmpty(stockList) || state == null) {
+            throw new BaseException("参数错误");
+        }
+
+        Long fId = stockList.get(0).getId();
+
+        // 2.用查到的stock和出货数量和出货状态构造stockLog
+        List<StockLog> stockLogList = new ArrayList<>();
+        for (int i = 0; i < stockList.size(); i ++  ) {
+            StockLog stockLog = new StockLog();
+            BeanUtils.copyProperties(stockList.get(i), stockLog);
+            stockLog.setfId(fId);
+            stockLog.setChangeQuantity(changeQuantityList.get(i));
+            stockLog.setState(0);
+            stockLog.setLogType(1);
+            stockLogList.add(stockLog);
+        }
+        stockLogList.get(0).setState(state);
+        // 3.批量更新stockLog
+        stockLogService.insertStockLogs(stockLogList);
+        // 4.判断状态决定是否批量更新stock
+        // 1 表示待确定，2 表示已确定
+        if (state == 2) {
+            // 更新stock
+            List<Stock> updatedStockList = new ArrayList<>();
+            for (int i = 0; i < stockList.size(); i ++ ) {
+                Stock stock = stockList.get(i);
+                stock.setQuantity(stock.getQuantity() - changeQuantityList.get(i));
+                stock.setTotalWeight(stock.getQuantity() * stock.getWeight());
+                updatedStockList.add(stock);
+            }
+            return toAjax(stockService.updateStocks(updatedStockList));
+        }
+        return toAjax(true);
     }
 }
