@@ -117,15 +117,16 @@ public class StockController extends BaseController
      * @param
      * @return
      */
-    @PreAuthorize("@ss.hasPermi('stock:stock:out')")
+    // @PreAuthorize("@ss.hasPermi('stock:stock:out')")
     @PostMapping("/out")
-    public AjaxResult out(@RequestBody List<StockOutDto> stockOutDtoList)
+    public AjaxResult out(@RequestBody StockOutDto stockOutDto)
     {
         // 传入数据里面存了型材编码 和 出货的数量 以及 出货的状态
         // 1. 用型材编码查到对应的stock记录
         // 2.用查到的stock和出货数量和出货状态构造stockLog
         // 3.判断状态决定是否批量更新stock
         // 4.批量更新stockLog
+
         return toAjax(true);
     }
 }

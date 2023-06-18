@@ -60,4 +60,14 @@ public interface IStockLogService
     public int deleteStockLogById(Long id);
 
 
+    /**
+    * 删除待处理的列表
+    */
+    int deleteDraftById(Long id);
+
+    /**
+    * 确认待处理的列表
+    */
+    int useDraftById(Long id);
+
 }

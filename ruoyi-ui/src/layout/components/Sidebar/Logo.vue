@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '若依管理系统',
+      title: '四川广荣铝业',
       logo: logoImg
     }
   }

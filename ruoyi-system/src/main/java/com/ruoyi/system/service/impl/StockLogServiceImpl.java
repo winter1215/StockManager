@@ -1,12 +1,21 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import com.ruoyi.common.exception.base.BaseException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.system.domain.Stock;
+import com.ruoyi.system.mapper.StockMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.StockLogMapper;
 import com.ruoyi.system.domain.StockLog;
 import com.ruoyi.system.service.IStockLogService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 /**
  * 库存Service业务层处理
@@ -18,11 +27,15 @@ import com.ruoyi.system.service.IStockLogService;
 public class StockLogServiceImpl implements IStockLogService 
 {
     @Autowired
+    private StockMapper stockMapper;
+
+    @Autowired
     private StockLogMapper stockLogMapper;
+
 
     /**
      * 查询库存
-     * 
+     *
      * @param id 库存主键
      * @return 库存
      */
@@ -93,5 +106,49 @@ public class StockLogServiceImpl implements IStockLogService
     {
 
         return stockLogMapper.deleteStockLogById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteDraftById(Long id) {
+        // 1. 删除 id (id 为 id的 fid 的也为id)
+        // 2. 删除 fid = id
+        int flag = stockLogMapper.deleteStockLogByFid(id);
+        return flag;
+    }
+
+    @Override
+    public int useDraftById(Long id) {
+        // 1. 修改 id state = 2
+        StockLog stockLog = new StockLog();
+        stockLog.setId(id);
+        // todo: 枚举
+        stockLog.setState(2);
+        stockLogMapper.updateStockLog(stockLog);
+        // 2. 对库存做修改
+        StockLog stockLog1 = new StockLog();
+        stockLog1.setfId(id);
+        // 查出待处理的 stockLogList
+        List<StockLog> stockLogList = stockLogMapper.selectStockLogList(stockLog1);
+        if (CollectionUtils.isEmpty(stockLogList)) {
+            throw new BaseException("参数错误");
+        }
+        List<String> profileCodeList = stockLogList.stream().map(StockLog::getProfileCode).collect(Collectors.toList());
+        // 查出需要修改的库存 Stock
+        List<Stock> stockList = stockMapper.selectStockByProfileCodes(profileCodeList);
+
+        // 组装出 stockLogList Map
+        Map<String, Long> profileCodeChangeMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getChangeQuantity));
+        stockList.forEach(item -> {
+            if (item == null) {
+                return;
+            }
+            Long changeQuantity = profileCodeChangeMap.get(item.getProfileCode());
+            item.setQuantity(item.getQuantity() - changeQuantity);
+            item.setTotalWeight(item.getQuantity() * item.getWeight());
+        });
+        // 批量更新
+        stockList = stockList.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return stockMapper.batchUpdateStock(stockList);
     }
 }

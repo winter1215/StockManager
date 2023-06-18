@@ -59,6 +59,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
 
+    <select id="selectStockByProfileCodes" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        WHERE profile_code IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
         insert into stock
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -125,6 +133,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update_time = sysdate()
         </trim>
         where profile_code = #{profileCode}
+    </update>
+
+<!--  批量更新  -->
+    <update id="batchUpdateStock" parameterType="java.util.List">
+        UPDATE stock
+        <set>
+            <foreach collection="list" item="item" separator=",">
+                <if test="item.quantity != null">
+                    quantity = #{item.quantity}
+                </if>
+                <if test="item.totalWeight != null">
+                    <if test="item.quantity != null"> , </if> total_weight = #{item.totalWeight}
+                </if>
+            </foreach>
+        </set>
+        WHERE profile_code IN
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item.profileCode}
+        </foreach>
     </update>
 
 </mapper>
