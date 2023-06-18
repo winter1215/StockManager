@@ -58,4 +58,6 @@ public interface IStockLogService
      * @return 结果
      */
     public int deleteStockLogById(Long id);
+
+
 }
