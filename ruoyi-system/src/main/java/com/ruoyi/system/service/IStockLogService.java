@@ -36,6 +36,12 @@ public interface IStockLogService
     public int insertStockLog(StockLog stockLog);
 
     /**
+     * 批量新增库存日志
+     * @param stockLogs
+     * @return
+     */
+    public int insertStockLogs(List<StockLog> stockLogs);
+    /**
      * 修改库存
      * 
      * @param stockLog 库存

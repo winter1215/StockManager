@@ -138,18 +138,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--  批量更新  -->
     <update id="batchUpdateStock" parameterType="java.util.List">
         UPDATE stock
-        <set>
-            <foreach collection="list" item="item" separator=",">
-                <if test="item.quantity != null">
-                    quantity = #{item.quantity}
-                </if>
-                <if test="item.totalWeight != null">
-                    <if test="item.quantity != null"> , </if> total_weight = #{item.totalWeight}
-                </if>
-            </foreach>
-        </set>
-        WHERE profile_code IN
-        <foreach collection="list" item="item" separator="," open="(" close=")">
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="`quantity` = CASE" suffix="END,">
+                <foreach collection="list" item="item">
+                    <if test="item.quantity != null">
+                        WHEN `profile_code` = #{item.profileCode} THEN #{item.quantity}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`total_weight` = CASE" suffix="END,">
+                <foreach collection="list" item="item">
+                    <if test="item.totalWeight != null">
+                        WHEN `profile_code` = #{item.profileCode} THEN #{item.totalWeight}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE `profile_code` IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
             #{item.profileCode}
         </foreach>
     </update>

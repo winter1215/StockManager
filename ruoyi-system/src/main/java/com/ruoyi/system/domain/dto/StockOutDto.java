@@ -1,28 +1,10 @@
 package com.ruoyi.system.domain.dto;
 
+import com.ruoyi.system.domain.StockOutInfo;
+
 import java.util.List;
 
 public class StockOutDto {
-    class StockOutInfo {
-        String profileCode;
-        Integer changeQuantity;
-
-        public String getProfileCode() {
-            return profileCode;
-        }
-
-        public void setProfileCode(String profileCode) {
-            this.profileCode = profileCode;
-        }
-
-        public Integer getChangeQuantity() {
-            return changeQuantity;
-        }
-
-        public void setChangeQuantity(Integer changeQuantity) {
-            this.changeQuantity = changeQuantity;
-        }
-    }
 
     /** 封装的出货List*/
     List<StockOutInfo> stockOutInfoList;
@@ -44,5 +26,13 @@ public class StockOutDto {
 
     public void setState(Integer state) {
         this.state = state;
+    }
+
+    @Override
+    public String toString() {
+        return "StockOutDto{" +
+                "stockOutInfoList=" + stockOutInfoList +
+                ", state=" + state +
+                '}';
     }
 }

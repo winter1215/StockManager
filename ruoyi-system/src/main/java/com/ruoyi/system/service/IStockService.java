@@ -64,5 +64,12 @@ public interface IStockService
     */
     Stock selectStockByProfileCode(String profileCode);
 
+    /**
+     * 通过 profileCodeList 获取 stockList
+     */
+    List<Stock> selectStockByProfileCodes(List<String> profileCodeList);
+
     List<Stock> selectStockListByIds(Long[] ids);
+
+    int updateStocks(List<Stock> updatedStockList);
 }
