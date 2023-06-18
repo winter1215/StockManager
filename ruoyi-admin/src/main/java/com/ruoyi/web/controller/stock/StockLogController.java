@@ -102,4 +102,19 @@ public class StockLogController extends BaseController
     {
         return toAjax(stockLogService.deleteStockLogByIds(ids));
     }
+
+
+    @PreAuthorize("@ss.hasPermi('stock:log:remove')")
+    @DeleteMapping("removeDraft/{id}")
+    public AjaxResult removeDraft(@PathVariable Long id)
+    {
+        return toAjax(stockLogService.deleteDraftById(id));
+    }
+
+    @PreAuthorize("@ss.hasPermi('stock:log:remove')")
+    @PostMapping("useDraft/{id}")
+    public AjaxResult useDraft(@PathVariable Long id)
+    {
+        return toAjax(stockLogService.useDraftById(id));
+    }
 }

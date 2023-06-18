@@ -22,6 +22,11 @@ public class StockLog extends BaseEntity
     /** 主键 id */
     private Long id;
 
+    /**
+    * 是否有父亲
+    */
+    private Long fId;
+
     /** 型材编码 */
     @Excel(name = "型材编码")
     private String profileCode;
@@ -66,9 +71,29 @@ public class StockLog extends BaseEntity
     @Excel(name = "日志类型", readConverterExp = "0=进货,1=出货,2=补货,3=用户操作")
     private Integer logType;
 
+    /**
+    * 0: 非出货 1： 未处理 2：已处理
+    */
+    private Integer state;
+
     /** 逻辑删除: 0 -&gt; 未删除, 1 -&gt; 删除 */
     private Integer isDelete;
 
+    public Long getfId() {
+        return fId;
+    }
+
+    public void setfId(Long fId) {
+        this.fId = fId;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
     public void setId(Long id)
     {
         this.id = id;

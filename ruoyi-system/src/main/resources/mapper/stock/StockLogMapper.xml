@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="StockLog" id="StockLogResult">
         <result property="id"    column="id"    />
+        <result property="fId"    column="f_id"    />
         <result property="profileCode"    column="profile_code"    />
         <result property="color"    column="color"    />
         <result property="quantity"    column="quantity"    />
@@ -17,18 +18,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="materialType"    column="material_type"    />
         <result property="price"    column="price"    />
         <result property="logType"    column="log_type"    />
+        <result property="state"    column="state"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="isDelete"    column="is_delete"    />
     </resultMap>
 
     <sql id="selectStockLogVo">
-        select id, profile_code, color, quantity, change_quantity, weight, profile_name, length, thickness, material_type, price, log_type, create_time, update_time, is_delete from stock_log
+        select id, f_id, profile_code, color, quantity, change_quantity, weight, profile_name, length, thickness, material_type, price, log_type, create_time, update_time, state, is_delete from stock_log
     </sql>
 
     <select id="selectStockLogList" parameterType="StockLog" resultMap="StockLogResult">
         <include refid="selectStockLogVo"/>
-        <where>  
+        <where>
+            <if test="fId != null "> and f_id = #{fId}</if>
             <if test="profileCode != null  and profileCode != ''"> and profile_code = #{profileCode}</if>
             <if test="color != null  and color != ''"> and color = #{color}</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
@@ -40,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="materialType != null "> and material_type = #{materialType}</if>
             <if test="price != null "> and price = #{price}</if>
             <if test="logType != null "> and log_type = #{logType}</if>
+            <if test="state != null "> and state = #{state}</if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
                 AND date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
             </if>
@@ -58,6 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertStockLog" parameterType="StockLog" useGeneratedKeys="true" keyProperty="id">
         insert into stock_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fId != null">f_id,</if>
             <if test="profileCode != null and profileCode != ''">profile_code,</if>
             <if test="color != null and color != ''">color,</if>
             <if test="quantity != null">quantity,</if>
@@ -69,10 +74,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="materialType != null">material_type,</if>
             <if test="price != null">price,</if>
             <if test="logType != null">log_type,</if>
+            <if test="state != null">state,</if>
             create_time,
             update_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fId != null">#{fId},</if>
             <if test="profileCode != null and profileCode != ''">#{profileCode},</if>
             <if test="color != null and color != ''">#{color},</if>
             <if test="quantity != null">#{quantity},</if>
@@ -84,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="materialType != null">#{materialType},</if>
             <if test="price != null">#{price},</if>
             <if test="logType != null">#{logType},</if>
+            <if test="state != null">#{state},</if>
             sysdate(),
             sysdate()
          </trim>
@@ -91,7 +99,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertStockLogs" parameterType="java.util.List">
         INSERT INTO
             stock_log
-        (profile_code,
+        (f_id,
+        profile_code,
         color,
         quantity,
         change_quantity,
@@ -102,18 +111,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         material_type,
         price,
         log_type,
+        state,
         create_time,
         update_time)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.profileCode}, #{item.color}, #{item.quantity}, #{item.changeQuantity}, #{item.weight}, #{item.profileName},
-            #{item.length}, #{item.thickness}, #{item.materialType}, #{item.price}, #{item.logType}, sysdate(), sysdate())
+            (#{item.fId}, #{item.profileCode}, #{item.color}, #{item.quantity}, #{item.changeQuantity}, #{item.weight}, #{item.profileName},
+            #{item.length}, #{item.thickness}, #{item.materialType}, #{item.price}, #{item.logType}, #{item.state}, sysdate(), sysdate())
         </foreach>
     </insert>
 
     <update id="updateStockLog" parameterType="StockLog">
         update stock_log
         <trim prefix="SET" suffixOverrides=",">
+            <if test="fId != null">f_id = #{fId},</if>
             <if test="profileCode != null and profileCode != ''">profile_code = #{profileCode},</if>
             <if test="color != null and color != ''">color = #{color},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
@@ -125,6 +136,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="materialType != null">material_type = #{materialType},</if>
             <if test="price != null">price = #{price},</if>
             <if test="logType != null">log_type = #{logType},</if>
+            <if test="state != null">state = #{state},</if>
             update_time = sysdate()
         </trim>
         where id = #{id}
@@ -132,6 +144,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <delete id="deleteStockLogById" parameterType="Long">
         update stock_log set is_delete = 1 where id = #{id}
+    </delete>
+
+    <delete id="deleteStockLogByFid" parameterType="Long">
+        update stock_log set is_delete = 1 where f_id = #{id}
     </delete>
 
 

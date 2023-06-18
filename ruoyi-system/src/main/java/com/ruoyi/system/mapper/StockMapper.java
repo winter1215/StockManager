@@ -63,4 +63,8 @@ public interface StockMapper
     public int deleteStockByIds(Long[] ids);
 
     Stock selectStockByProfileCode(String profileCode);
+
+    List<Stock> selectStockByProfileCodes(List<String> profileCodeList);
+
+    int batchUpdateStock(List<Stock> stockList);
 }
