@@ -104,6 +104,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null and color != ''">color = #{color},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="weight != null">weight = #{weight},</if>
+            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
             <if test="profileName != null and profileName != ''">profile_name = #{profileName},</if>
             <if test="length != null">length = #{length},</if>
             <if test="thickness != null">thickness = #{thickness},</if>
@@ -130,6 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update stock
         <trim prefix="SET" suffixOverrides=",">
             <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
             update_time = sysdate()
         </trim>
         where profile_code = #{profileCode}
