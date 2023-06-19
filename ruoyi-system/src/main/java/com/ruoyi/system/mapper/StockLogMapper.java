@@ -1,5 +1,6 @@
 package com.ruoyi.system.mapper;
 
+import java.util.Date;
 import java.util.List;
 import com.ruoyi.system.domain.StockLog;
 
@@ -64,4 +65,6 @@ public interface StockLogMapper
     int deleteStockLogByFid(Long id);
 
     int updateStockLogs(Long fId);
+
+    Long selectOrder(Date currentTime);
 }

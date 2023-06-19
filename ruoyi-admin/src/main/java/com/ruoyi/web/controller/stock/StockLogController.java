@@ -117,4 +117,15 @@ public class StockLogController extends BaseController
     {
         return toAjax(stockLogService.useDraftById(id));
     }
+
+    /**
+     * 获取单号
+     */
+    @PreAuthorize("@ss.hasPermi('stock:log:getOrder')")
+    @PostMapping("/getOrder")
+    public AjaxResult getOrder()
+    {
+        return success(stockLogService.getOrder());
+    }
+
 }

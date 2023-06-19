@@ -59,7 +59,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectStockLogVo"/>
         where id = #{id}
     </select>
-        
+
+    <select id="selectOrder" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM stock_log
+        WHERE DATE_FORMAT(create_time, '%Y-%m-%d') = DATE_FORMAT(#{currentTime}, '%Y-%m-%d')
+          AND state = 2
+    </select>
+
     <insert id="insertStockLog" parameterType="StockLog" useGeneratedKeys="true" keyProperty="id">
         insert into stock_log
         <trim prefix="(" suffix=")" suffixOverrides=",">

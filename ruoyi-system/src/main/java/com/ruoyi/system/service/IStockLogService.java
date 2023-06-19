@@ -76,4 +76,5 @@ public interface IStockLogService
     */
     int useDraftById(Long id);
 
+    String getOrder();
 }

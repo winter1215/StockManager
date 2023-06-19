@@ -1,5 +1,7 @@
 package com.ruoyi.system.service.impl;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -158,5 +160,30 @@ public class StockLogServiceImpl implements IStockLogService
         // 批量更新
         stockList = stockList.stream().filter(Objects::nonNull).collect(Collectors.toList());
         return stockMapper.batchUpdateStock(stockList);
+    }
+
+    /**
+     * 获取当前的单号
+     * @return 返回一个单号
+     */
+    @Override
+    public String getOrder() {
+        // 获取当前日期
+        LocalDate currentDate = LocalDate.now();
+
+        // 获取年份后两位
+        int yearLastTwoDigits = currentDate.getYear() % 100;
+
+        // 获取月份和日期
+        int month = currentDate.getMonthValue();
+        int day = currentDate.getDayOfMonth();
+
+        // 将年份后两位、月份和日期拼接为字符串
+        String dateString = "GR" + String.format("%02d", yearLastTwoDigits) + String.format("%02d", month) + String.format("%02d", day);
+
+        // 获取是第几单
+        Date currentTime = new Date();
+        Long num = stockLogMapper.selectOrder(currentTime);
+        return dateString + String.format("%03d", num);
     }
 }
