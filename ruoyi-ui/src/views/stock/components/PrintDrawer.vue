@@ -14,7 +14,7 @@
   
 <script>
 import template from './template'
-
+import { outStock } from "@/api/stock/stock";
 import { hiprint } from "vue-plugin-hiprint";
 
 let hiprintTemplate;
@@ -94,12 +94,32 @@ export default {
             }, 500)
         },
         print() {
-            this.waitShowPrinter = true
-            this.hiprintTemplate.print(this.printData, {}, {
-                callback: () => {
-                    this.waitShowPrinter = false
-                }
-            })
+            this.$confirm('打印后请于待确认处处理', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(async () => {
+                this.waitShowPrinter = true
+                this.hiprintTemplate.print(this.printData, {}, {
+                    callback: () => {
+                        this.waitShowPrinter = false
+                    }
+                })
+
+                let data = {};
+                data.stockOutInfoList = [...this.dataProp].map(item => {
+                    return {
+                        profileCode: item.profileCode,
+                        changeQuantity: item.quantity
+                    }
+                });
+                data.state = 1; // 待确定状态
+                const res = await outStock(data);
+                console.log(res);
+            }).catch(() => { });
+
+
+
         },
         toPdf() {
             this.hiprintTemplate.toPdf(this.printData, '打印预览pdf');

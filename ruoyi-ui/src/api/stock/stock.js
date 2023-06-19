@@ -33,6 +33,15 @@ export function addStock(data) {
   })
 }
 
+// 出货
+export function outStock(data) {
+  return request({
+    url: '/stock/stock/out',
+    method: 'post',
+    data: data
+  })
+}
+
 // 修改库存
 export function updateStock(data) {
   return request({

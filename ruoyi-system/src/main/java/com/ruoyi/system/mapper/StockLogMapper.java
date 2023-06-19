@@ -62,4 +62,6 @@ public interface StockLogMapper
     public int insertStockLogs(List<StockLog> stockLogs);
 
     int deleteStockLogByFid(Long id);
+
+    int updateStockLogs(Long fId);
 }

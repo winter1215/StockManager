@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             and is_delete = 0
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectStockLogById" parameterType="Long" resultMap="StockLogResult">
@@ -158,6 +159,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="array" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+    </update>
+    <update id="updateStockLogs" parameterType="Long">
+        UPDATE stock_log
+        SET state = 2
+        WHERE f_id = #{fId}
     </update>
 
 </mapper>

@@ -151,15 +151,39 @@ public class StockController extends BaseController
                 .collect(Collectors.toList());
         List<Stock> stockList = stockService.selectStockByProfileCodes(profileCodeList);
 
+        // 遇到 null 抛出异常，说明该批数据有错
+        stockList.forEach(item -> {
+            if (item == null) {
+                throw new BaseException("参数错误，请刷新重试");
+            }
+        });
+
         if (CollectionUtils.isEmpty(stockList) || state == null) {
             throw new BaseException("参数错误");
         }
+        // 数量校验
+        for (int i = 0; i < stockList.size(); i++) {
+            Long quantity = stockList.get(i).getQuantity();
+            Long changeQuantity = changeQuantityList.get(i);
+            if (changeQuantity < 0 || changeQuantity > quantity) {
+                throw new BaseException("参数错误，请刷新重试");
+            }
+        }
 
-        Long fId = stockList.get(0).getId();
-
+        StockLog head = new StockLog();
+        BeanUtils.copyProperties(stockList.get(0), head);
+        head.setId(0L);
+        head.setfId(0L);
+        head.setChangeQuantity(changeQuantityList.get(0));
+        head.setState(1);
+        head.setLogType(1);
+        stockLogService.insertStockLog(head);
+        Long fId = head.getId();
+        head.setfId(fId);
+        stockLogService.updateStockLog(head);
         // 2.用查到的stock和出货数量和出货状态构造stockLog
         List<StockLog> stockLogList = new ArrayList<>();
-        for (int i = 0; i < stockList.size(); i ++  ) {
+        for (int i = 1; i < stockList.size(); i ++  ) {
             StockLog stockLog = new StockLog();
             BeanUtils.copyProperties(stockList.get(i), stockLog);
             stockLog.setfId(fId);
@@ -168,9 +192,10 @@ public class StockController extends BaseController
             stockLog.setLogType(1);
             stockLogList.add(stockLog);
         }
-        stockLogList.get(0).setState(state);
-        // 3.批量更新stockLog
-        stockLogService.insertStockLogs(stockLogList);
+        if(!CollectionUtils.isEmpty(stockLogList)) {
+            // 3.批量更新stockLog
+            stockLogService.insertStockLogs(stockLogList);
+        }
         // 4.判断状态决定是否批量更新stock
         // 1 表示待确定，2 表示已确定
         if (state == 2) {

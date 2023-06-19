@@ -136,6 +136,8 @@ public class StockLogServiceImpl implements IStockLogService
         stockLog1.setfId(id);
         // 查出待处理的 stockLogList
         List<StockLog> stockLogList = stockLogMapper.selectStockLogList(stockLog1);
+        // 更新所有 fid 待处理的日志为已完成 state = 2
+        stockLogMapper.updateStockLogs(id);
         if (CollectionUtils.isEmpty(stockLogList)) {
             throw new BaseException("参数错误");
         }
