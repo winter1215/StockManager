@@ -70,6 +70,13 @@ export function listDraft() {
     params: params
   })
 }
+// 获取单号
+export function getOrder() {
+  return request({
+    url: '/stock/log/getOrder',
+    method: 'get',
+  })
+}
 //  抛弃
 export function removeDraft(id) {
   return request({

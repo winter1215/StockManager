@@ -10,8 +10,8 @@
       <el-form-item label="数量" prop="quantity">
         <el-input v-model="queryParams.quantity" placeholder="请输入数量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
-      <el-form-item label="重量(kg)" prop="weight">
-        <el-input v-model="queryParams.weight" placeholder="请输入重量" clearable @keyup.enter.native="handleQuery" />
+      <el-form-item label="总重量(kg)" prop="weight">
+        <el-input v-model="queryParams.weight" placeholder="请输入总重量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="型材名称" prop="profileName">
         <el-input v-model="queryParams.profileName" placeholder="请输入型材名称" clearable @keyup.enter.native="handleQuery" />
@@ -46,7 +46,7 @@
     </el-row>
 
     <!-- 出货数量修改库存对话框 -->
-    <el-dialog title="出货面板" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog title="补货面板" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="型材编码" prop="profileCode">
           <el-input v-model="form.profileCode" disabled />
@@ -54,8 +54,11 @@
         <el-form-item label="型材名称" prop="profileName">
           <el-input v-model="form.profileName" disabled />
         </el-form-item>
-        <el-form-item label="数量" prop="quantity">
-          <el-input v-model.number="form.quantity" placeholder="请输入数量" />
+        <el-form-item label="补货数量" prop="quantity">
+          <el-input v-model.number="form.quantity" placeholder="请输入补货数量" />
+        </el-form-item>
+        <el-form-item label="补货重量" prop="weight">
+          <el-input v-model="form.weight" placeholder="请输入补货重量" />
         </el-form-item>
         <el-form-item label="进货单价" prop="price">
           <el-input v-model="form.price" placeholder="请输入型材进货单价" />
@@ -69,14 +72,10 @@
     </el-dialog>
 
     <!-- 清单抽屉 -->
-    <el-drawer title="出货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
+    <el-drawer title="补货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
       <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
           v-hasPermi="['stock:stock:export']">导出清单</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="printStockout"
-          v-hasPermi="['stock:stock:export']">打印清单</el-button>
       </el-col>
       <el-table :data="stockoutList" height="700">
         <el-table-column label="型材编码" align="center" prop="profileCode" />
@@ -90,8 +89,7 @@
         <el-table-column label="长度" align="center" prop="length" />
         <el-table-column label="厚度" align="center" prop="thickness" />
         <el-table-column label="进货单价" align="center" prop="price" />
-        <el-table-column label="重量(kg)" align="center" prop="weight" />
-        <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
+        <el-table-column label="总重量(kg)" align="center" prop="weight" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template slot-scope="scope">
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleMoveOut(scope.row, 1)">移除</el-button>
@@ -114,8 +112,7 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="重量(kg)" align="center" prop="weight" />
-      <el-table-column label="总重量(kg)" align="center" sortable="custom" prop="totalWeight" />
+      <el-table-column label="总重量(kg)" align="center" sortable="custom" prop="weight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-if="scope.row.inDrawer" size="mini" type="danger" icon="el-icon-delete"
@@ -158,27 +155,17 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        profileCode: [
-          { required: true, message: "型材编码不能为空", trigger: "blur" }
-        ],
         quantity: [
-          { required: true, message: "操作前数量不能为空", trigger: "blur" },
+          { required: true, message: "出货数量不能为空", trigger: "blur" },
           { type: 'number', message: "必须为整数" }
         ],
         weight: [
-          { required: true, message: "重量不能为空", trigger: "blur" }
-        ],
-        profileName: [
-          { required: true, message: "型材名称不能为空", trigger: "blur" }
-        ],
-        length: [
-          { required: true, message: "长度不能为空", trigger: "blur" }
-        ],
-        thickness: [
-          { required: true, message: "厚度不能为空", trigger: "blur" }
+          { required: true, message: "出货重量不能为空", trigger: "blur" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
         price: [
-          { required: true, message: "型材进货单价不能为空", trigger: "blur" }
+          { required: true, message: "型材进货单价不能为空", trigger: "blur" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
       },
       // 是否显示弹出层
@@ -238,9 +225,9 @@ export default {
     openDialog(row) {
       this.form = { ...row }
       this.form.quantity = null;
+      this.form.weight = null;
       this.open = true
     },
-    // 移入抽屉中的元素
     handleMoveIn() {
       this.$refs["form"].validate(valid => {
         if (valid) {
@@ -251,10 +238,19 @@ export default {
             const stock = this.stockList.filter(item => item.id === this.form.id)[0]
 
             if (!this.form.quantity || this.form.quantity <= 0) {
-              this.$message.error("出货数量有误");
+              this.$message.error("补货数量有误");
+              return;
+            }
+            if (!this.form.weight || this.form.weight <= 0) {
+              this.$message.error("补货重量有误");
               return;
             }
 
+            if (!this.form.price || this.form.price <= 0) {
+              this.$message.error("补货单价有误");
+              return;
+            }
+            
             this.stockoutList.push(this.form);
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变
@@ -268,7 +264,6 @@ export default {
           this.open = false;
         }
       });
-
     },
     // 移除抽屉中的元素: type: 0 库存页面移除, type = 1 抽屉中移除
     handleMoveOut(row, type = 0) {

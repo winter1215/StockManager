@@ -11,9 +11,8 @@
             </el-table-column>
             <el-table-column label="长度" align="center" prop="length" />
             <el-table-column label="厚度" align="center" prop="thickness" />
-            <el-table-column label="进货单价" align="center" prop="price" />
-            <el-table-column label="单重" align="center" prop="weight" />
-            <el-table-column label="总重量" align="center" prop="totalWeight" />
+            <el-table-column label="出货单价" align="center" prop="price" />
+            <el-table-column label="出货重量" align="center" prop="weight" />
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
                     <el-button size="mini" type="danger" icon="el-icon-delete"

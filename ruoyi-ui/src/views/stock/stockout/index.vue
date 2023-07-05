@@ -10,8 +10,8 @@
       <el-form-item label="数量" prop="quantity">
         <el-input v-model="queryParams.quantity" placeholder="请输入数量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
-      <el-form-item label="重量" prop="weight">
-        <el-input v-model="queryParams.weight" placeholder="请输入重量" clearable @keyup.enter.native="handleQuery" />
+      <el-form-item label="总重量" prop="weight">
+        <el-input v-model="queryParams.weight" placeholder="请输入总重量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="型材名称" prop="profileName">
         <el-input v-model="queryParams.profileName" placeholder="请输入型材名称" clearable @keyup.enter.native="handleQuery" />
@@ -57,7 +57,10 @@
         <el-form-item label="出货数量" prop="quantity">
           <el-input v-model.number="form.quantity" placeholder="请输入出货数量" />
         </el-form-item>
-        <el-form-item label="进货单价" prop="price">
+        <el-form-item label="出货重量" prop="weight">
+          <el-input v-model="form.weight" placeholder="请输入出货重量" />
+        </el-form-item>
+        <el-form-item label="出货单价" prop="price">
           <el-input v-model="form.price" placeholder="请输入型材进货单价" />
         </el-form-item>
         <!-- 是否需要出货价格 -->
@@ -69,10 +72,10 @@
     </el-dialog>
     <!-- 清单抽屉 -->
     <el-drawer title="出货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
-      <el-col :span="1.5" style="margin-right: 20px">
+      <!-- <el-col :span="1.5" style="margin-right: 20px">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
           v-hasPermi="['stock:stock:export']">导出清单</el-button>
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-switch v-model="isList" active-text="清单" inactive-text="打印预览" />
       </el-col>
@@ -98,19 +101,16 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="重量(kg)" align="center" prop="weight" />
-      <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
+      <el-table-column label="总重量(kg)" align="center" prop="weight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-if="scope.row.inDrawer" size="mini" type="danger" icon="el-icon-delete"
             @click="handleMoveOut(scope.row, 0)">移出清单</el-button>
           <el-button v-else size="mini" type="primary" icon="el-icon-delete"
             @click="openDialog(scope.row)">移入清单</el-button>
-
         </template>
       </el-table-column>
     </el-table>
-
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
   </div>
@@ -147,27 +147,17 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        profileCode: [
-          { required: true, message: "型材编码不能为空", trigger: "blur" }
-        ],
         quantity: [
-          { required: true, message: "操作前数量不能为空", trigger: "blur" },
+          { required: true, message: "出货数量不能为空", trigger: "blur" },
           { type: 'number', message: "必须为整数" }
         ],
         weight: [
-          { required: true, message: "重量不能为空", trigger: "blur" }
-        ],
-        profileName: [
-          { required: true, message: "型材名称不能为空", trigger: "blur" }
-        ],
-        length: [
-          { required: true, message: "长度不能为空", trigger: "blur" }
-        ],
-        thickness: [
-          { required: true, message: "厚度不能为空", trigger: "blur" }
+          { required: true, message: "出货重量不能为空", trigger: "blur" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
         price: [
-          { required: true, message: "型材进货单价不能为空", trigger: "blur" }
+          { required: true, message: "型材进货单价不能为空", trigger: "blur" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
       },
       // 是否显示弹出层
@@ -240,6 +230,7 @@ export default {
     openDialog(row) {
       this.form = { ...row }
       this.form.quantity = null;
+      this.form.weight = null;
       this.open = true
     },
     // 移入抽屉中的元素
@@ -257,8 +248,20 @@ export default {
               return;
             }
 
+            if (!this.form.weight || this.form.weight <= 0) {
+              this.$message.error("出货重量有误");
+              return;
+            }
+
+            if (!this.form.price || this.form.price <= 0) {
+              this.$message.error("出货单价有误");
+              return;
+            }
+            
+            // 解决正则类型为字符串 -> 类型转换
+            this.form.weight = parseFloat(this.form.weight);
+            this.form.price = parseFloat(this.form.price);
             // update totalWeight
-            this.form.totalWeight = this.form.quantity * this.form.weight;
             this.stockoutList.push(this.form);
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变
@@ -293,9 +296,9 @@ export default {
       this.$message.warning("移出成功")
     },
     /** 导出按钮操作 */
-    handleExport() {
-      genExcel([...this.stockoutList]);
-    },
+    // handleExport() {
+    //   genExcel([...this.stockoutList]);
+    // },
 
     printStockout() {
       alert(this.stockoutList)

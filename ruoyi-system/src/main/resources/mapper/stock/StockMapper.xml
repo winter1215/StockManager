@@ -10,7 +10,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="color"    column="color"    />
         <result property="quantity"    column="quantity"    />
         <result property="weight"    column="weight"    />
-        <result property="totalWeight"    column="total_weight"    />
         <result property="profileName"    column="profile_name"    />
         <result property="length"    column="length"    />
         <result property="thickness"    column="thickness"    />
@@ -22,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStockVo">
-        select id, profile_code, color, quantity, weight, total_weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
+        select id, profile_code, color, quantity, ROUND(weight,2) as weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
     </sql>
 
     <select id="selectStockList" parameterType="Stock" resultMap="StockResult">
@@ -39,17 +38,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="price != null "> and price = #{price}</if>
             and is_delete = 0
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectStockById" parameterType="Long" resultMap="StockResult">
         <include refid="selectStockVo"/>
         where id = #{id}
+        and is_delete = 0
     </select>
 
 <!--  通过 profileCode 查询 stock  -->
     <select id="selectStockByProfileCode" resultMap="StockResult">
         <include refid="selectStockVo"/>
         where profile_code = #{profileCode}
+        and is_delete = 0
     </select>
     <select id="selectStockByIds" resultMap="StockResult">
         <include refid="selectStockVo"/>
@@ -57,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="array" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+        and is_delete = 0
     </select>
 
     <select id="selectStockByProfileCodes" resultMap="StockResult">
@@ -65,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+        and is_delete = 0
     </select>
 
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
@@ -100,11 +104,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateStock" parameterType="Stock">
         update stock
         <trim prefix="SET" suffixOverrides=",">
-            <if test="profileCode != null and profileCode != ''">profile_code = #{profileCode},</if>
             <if test="color != null and color != ''">color = #{color},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="weight != null">weight = #{weight},</if>
-            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
             <if test="profileName != null and profileName != ''">profile_name = #{profileName},</if>
             <if test="length != null">length = #{length},</if>
             <if test="thickness != null">thickness = #{thickness},</if>
@@ -127,11 +129,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{item}
         </foreach>
     </update>
+
     <update id="updateStockQuantity">
         update stock
         <trim prefix="SET" suffixOverrides=",">
             <if test="quantity != null">quantity = #{quantity},</if>
-            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
+            <if test="weight != null">weight = #{weight},</if>
             update_time = sysdate()
         </trim>
         where profile_code = #{profileCode}
@@ -148,10 +151,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     </if>
                 </foreach>
             </trim>
-            <trim prefix="`total_weight` = CASE" suffix="END,">
+#             todo： 批量出货更改重量
+            <trim prefix="`weight` = CASE" suffix="END,">
                 <foreach collection="list" item="item">
-                    <if test="item.totalWeight != null">
-                        WHEN `profile_code` = #{item.profileCode} THEN #{item.totalWeight}
+                    <if test="item.weight != null">
+                        WHEN `profile_code` = #{item.profileCode} THEN #{item.weight}
                     </if>
                 </foreach>
             </trim>

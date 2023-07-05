@@ -142,13 +142,20 @@ public class StockController extends BaseController
         List<StockOutInfo> stockOutInfos = stockOutDto.getStockOutInfoList();
         Integer state = stockOutDto.getState();
 
-        // 1. 用型材编码查到对应的stock记录
+        // format
         List<String> profileCodeList = stockOutInfos.stream()
                 .map(StockOutInfo::getProfileCode)
                 .collect(Collectors.toList());
         List<Long> changeQuantityList = stockOutInfos.stream()
                 .map(StockOutInfo::getChangeQuantity)
                 .collect(Collectors.toList());
+        List<Float> changeWeightList = stockOutInfos.stream()
+                .map(StockOutInfo::getChangeWeight)
+                .collect(Collectors.toList());
+        List<Float> changePriceList = stockOutInfos.stream()
+                .map(StockOutInfo::getChangePrice)
+                .collect(Collectors.toList());
+        // 1. 用型材编码查到对应的stock记录
         List<Stock> stockList = stockService.selectStockByProfileCodes(profileCodeList);
 
         // 遇到 null 抛出异常，说明该批数据有错
@@ -175,6 +182,8 @@ public class StockController extends BaseController
         head.setId(0L);
         head.setfId(0L);
         head.setChangeQuantity(changeQuantityList.get(0));
+        head.setWeight(changeWeightList.get(0) == null ? 0 : changeWeightList.get(0));
+        head.setPrice(changePriceList.get(0) == null ? 0 : changePriceList.get(0));
         head.setState(1);
         head.setLogType(1);
         stockLogService.insertStockLog(head);
@@ -188,10 +197,13 @@ public class StockController extends BaseController
             BeanUtils.copyProperties(stockList.get(i), stockLog);
             stockLog.setfId(fId);
             stockLog.setChangeQuantity(changeQuantityList.get(i));
+            stockLog.setWeight(changeWeightList.get(i) == null ? 0 : changeWeightList.get(i));
+            stockLog.setPrice(changePriceList.get(i) == null ? 0 : changePriceList.get(i));
             stockLog.setState(0);
             stockLog.setLogType(1);
             stockLogList.add(stockLog);
         }
+        // 判空 防止 mapper 报错
         if(!CollectionUtils.isEmpty(stockLogList)) {
             // 3.批量更新stockLog
             stockLogService.insertStockLogs(stockLogList);
@@ -204,7 +216,9 @@ public class StockController extends BaseController
             for (int i = 0; i < stockList.size(); i ++ ) {
                 Stock stock = stockList.get(i);
                 stock.setQuantity(stock.getQuantity() - changeQuantityList.get(i));
-                stock.setTotalWeight(stock.getQuantity() * stock.getWeight());
+                // 商家计算重量误差，若出库后重量为负数，默认将重量置为 0
+                float newWeight = (stock.getWeight() - changeWeightList.get(i));
+                stock.setWeight(newWeight < 0 ? 0 : newWeight);
                 updatedStockList.add(stock);
             }
             return toAjax(stockService.updateStocks(updatedStockList));

@@ -37,11 +37,8 @@ public class Stock extends BaseEntity
     private Long quantity;
 
     /** 重量 */
-    @Excel(name = "重量")
-    private Float weight;
-
     @Excel(name = "总重量")
-    private Float totalWeight;
+    private Float weight;
 
     /** 型材名称 */
     @Excel(name = "型材名称")
@@ -61,7 +58,7 @@ public class Stock extends BaseEntity
 
     /** 型材进货单价 */
     @Excel(name = "型材进货单价")
-    private BigDecimal price;
+    private Float price;
 
     /** 逻辑删除: 0 -> 未删除, 1 -> 删除 */
     private Integer isDelete;
@@ -106,15 +103,6 @@ public class Stock extends BaseEntity
     public Float getWeight() {
         return weight;
     }
-
-    public Float getTotalWeight() {
-        return totalWeight;
-    }
-
-    public void setTotalWeight(Float totalWeight) {
-        this.totalWeight = totalWeight;
-    }
-
     public void setWeight(Float weight) {
         this.weight = weight;
     }
@@ -146,9 +134,7 @@ public class Stock extends BaseEntity
         this.thickness = thickness;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+
 
     public void setMaterialType(Integer materialType)
     {
@@ -161,11 +147,15 @@ public class Stock extends BaseEntity
     }
 
 
-    public BigDecimal getPrice()
-    {
+    public Float getPrice() {
         return price;
     }
-    public void setIsDelete(Integer isDelete) 
+
+    public void setPrice(Float price) {
+        this.price = price;
+    }
+
+    public void setIsDelete(Integer isDelete)
     {
         this.isDelete = isDelete;
     }

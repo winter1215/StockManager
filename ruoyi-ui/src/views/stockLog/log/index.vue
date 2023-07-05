@@ -50,11 +50,8 @@
       <el-col :span="1.5">
         <el-button size="mini" type="success" @click="handleLogType(0)">进货日志</el-button>
         <el-button size="mini" type="success" @click="handleLogType(1)">出货日志</el-button>
-        <el-button size="mini" type="success" @click="handleLogType(2)">补货日志</el-button>
         <el-button size="mini" type="success" @click="handleLogType(3)">操作日志</el-button>
         <el-button size="mini" type="success" @click="handleLogType(4)">删除日志</el-button>
-        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['stock:log:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
@@ -92,15 +89,9 @@
       </el-table-column>
       <el-table-column v-if="logType === 1" label="处理状态" align="center" prop="state">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.state === 0">默认</el-tag>
+          <el-tag v-if="scope.row.state === 0" type="info">未处理</el-tag>
           <el-tag v-else-if="scope.row.state === 1" type="info">未处理</el-tag>
           <el-tag v-else-if="scope.row.state === 2" >已处理</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['stock:log:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

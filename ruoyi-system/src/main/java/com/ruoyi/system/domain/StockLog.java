@@ -43,8 +43,8 @@ public class StockLog extends BaseEntity
     @Excel(name = "变更数量")
     private Long changeQuantity;
 
-    /** 重量 */
-    @Excel(name = "重量")
+    /** 变更重量 */
+    @Excel(name = "变更重量")
     private Float weight;
 
     /** 型材名称 */
@@ -65,7 +65,7 @@ public class StockLog extends BaseEntity
 
     /** 型材进货单价 */
     @Excel(name = "型材进货单价")
-    private BigDecimal price;
+    private Float price;
 
     /** 日志类型: 0 -&gt; 进货, 1 -&gt; 出货, 2 -&gt; 补货, 3 -&gt; 用户操作 */
     @Excel(name = "日志类型", readConverterExp = "0=进货,1=出货,2=补货,3=用户操作")
@@ -204,11 +204,11 @@ public class StockLog extends BaseEntity
         this.thickness = thickness;
     }
 
-    public BigDecimal getPrice() {
+    public Float getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 

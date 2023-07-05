@@ -25,10 +25,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="重量(kg)" prop="weight">
+      <el-form-item label="总重量(kg)" prop="weight">
         <el-input
           v-model="queryParams.weight"
-          placeholder="请输入重量(kg)"
+          placeholder="请输入总重量(kg)"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -86,7 +86,7 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['stock:stock:add']"
-        >新增</el-button>
+        >进货</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -137,8 +137,7 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="重量(kg)" align="center" prop="weight" />
-      <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
+      <el-table-column label="总重量(kg)" align="center" prop="weight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -172,7 +171,7 @@
       <el-form ref="form" v-loading="addLoading" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="型材编码" prop="profileCode">
           <el-input v-if="title === '添加库存'" v-model="form.profileCode" @change="fetchStockByCode" placeholder="请输入型材编码" />
-          <el-input v-else v-model="form.profileCode" placeholder="请输入型材编码" />
+          <el-input v-else v-model="form.profileCode" disabled placeholder="请输入型材编码" />
         </el-form-item>
         <el-form-item label="颜色" prop="color">
           <el-input v-model="form.color" placeholder="请输入颜色" />
@@ -180,8 +179,8 @@
         <el-form-item label="数量" prop="quantity">
           <el-input v-model.number="form.quantity" placeholder="请输入数量" />
         </el-form-item>
-        <el-form-item label="单个重量(kg)" prop="weight">
-          <el-input v-model="form.weight" placeholder="请输入重量" />
+        <el-form-item label="总重量(kg)" prop="weight">
+          <el-input v-model="form.weight" placeholder="请输入总重量" />
         </el-form-item>
         <el-form-item label="型材名称" prop="profileName">
           <el-input v-model="form.profileName" placeholder="请输入型材名称" />
@@ -354,6 +353,7 @@ export default {
       const res = await getStockByCode(this.form.profileCode);
       this.addLoading = false;
       res.data.quantity = null;
+      res.data.weight = null;
       res.data.id = null;
       this.form = res.data;
 
@@ -373,6 +373,10 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (this.form.quantity < 0) {
+            this.$message.error("数量有误");
+            return;
+          }
           if (this.form.id != null) {
             updateStock(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");

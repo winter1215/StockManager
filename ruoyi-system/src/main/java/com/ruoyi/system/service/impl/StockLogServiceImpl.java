@@ -126,6 +126,7 @@ public class StockLogServiceImpl implements IStockLogService
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int useDraftById(Long id) {
         // 1. 修改 id state = 2
         StockLog stockLog = new StockLog();
@@ -148,14 +149,18 @@ public class StockLogServiceImpl implements IStockLogService
         List<Stock> stockList = stockMapper.selectStockByProfileCodes(profileCodeList);
 
         // 组装出 stockLogList Map
-        Map<String, Long> profileCodeChangeMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getChangeQuantity));
+        Map<String, Long> profileCodeChangeQuantityMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getChangeQuantity));
+        Map<String, Float> profileCodeChangeWeightMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getWeight));
         stockList.forEach(item -> {
             if (item == null) {
                 return;
             }
-            Long changeQuantity = profileCodeChangeMap.get(item.getProfileCode());
+            String profileCode = item.getProfileCode();
+            Long changeQuantity = profileCodeChangeQuantityMap.get(profileCode);
             item.setQuantity(item.getQuantity() - changeQuantity);
-            item.setTotalWeight(item.getQuantity() * item.getWeight());
+            // 更新重量
+            float newWeight = (item.getWeight() - profileCodeChangeWeightMap.get(profileCode));
+            item.setWeight(newWeight < 0 ? 0 : newWeight);
         });
         // 批量更新
         stockList = stockList.stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -184,6 +189,6 @@ public class StockLogServiceImpl implements IStockLogService
         // 获取是第几单
         Date currentTime = new Date();
         Long num = stockLogMapper.selectOrder(currentTime);
-        return dateString + String.format("%03d", num);
+        return dateString + String.format("%03d", ++num);
     }
 }

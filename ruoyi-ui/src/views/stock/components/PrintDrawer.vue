@@ -9,12 +9,14 @@
         <div style="min-height: 100px; margin-left: 5%;">
             <div id="preview_content_custom"></div>
         </div>
+
     </div>
 </template>
   
 <script>
 import template from './template'
 import { outStock } from "@/api/stock/stock";
+import { getOrder } from "@/api/stock/log";
 import { hiprint } from "vue-plugin-hiprint";
 
 let hiprintTemplate;
@@ -45,6 +47,9 @@ export default {
     },
     mounted() {
         this.init();
+        // 初始化数据
+        this.initData();
+        this.show(hiprintTemplate);
     },
     watch: {
         dataProp(newVal) {
@@ -55,31 +60,44 @@ export default {
             this.printData.totalCap = "";
             this.initData();
             this.show(hiprintTemplate);
-        }
+        },
+        deep:true
     },
     methods: {
         init() {
             hiprintTemplate = new hiprint.PrintTemplate({
                 template: template
             });
-            // 初始化数据
-            this.initData();
-            this.show(hiprintTemplate);
         },
-        initData() {
+        initData(param) {
             // 拷贝 防止数据出错
+            if (param) {
+                this.printData.name = param.name;
+                this.printData.orderNum = param.orderNum;
+            }
+
+            this.printData.makeDate = this.parseTime(new Date(), '{y}年{m}月{d}日')
             let tmp = [...this.dataProp]
             tmp.forEach(item => {
-                this.printData.totalPrice = this.printData.totalPrice + item.quantity * item.price;
-                item.totalPrice = item.quantity * item.price;
+                item.totalPrice = item.weight * item.price; // 单件的总重
+                item.totalPrice = parseFloat(item.totalPrice.toFixed(2));
+
+                this.printData.totalPrice = this.printData.totalPrice + item.totalPrice; // 出货单的总重
+
+
                 if (item.materialType == 0) {
                     this.printData.zhi = this.printData.zhi + item.quantity;
                 } else {
                     this.printData.ge = this.printData.ge + item.quantity;
                 }
                 item.materialType = item.materialType === 0 ? '支' : '件';
-                this.printData.totalWeight = this.printData.totalWeight + item.totalWeight;
+                this.printData.totalWeight = this.printData.totalWeight + item.weight;
             })
+            // 打印预览将 总价与总重保留两位小数
+            this.printData.totalPrice = parseFloat(this.printData.totalPrice.toFixed(2));
+            this.printData.totalWeight = parseFloat(this.printData.totalWeight.toFixed(2));
+
+
             this.printData.totalCap = this.toChinese(this.printData.totalPrice);
             this.printData.table = this.dataProp;
 
@@ -94,11 +112,25 @@ export default {
             }, 500)
         },
         print() {
-            this.$confirm('打印后请于待确认处处理', '提示', {
+            this.$prompt('请输入客户姓名', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
-                type: 'warning'
-            }).then(async () => {
+                inputErrorMessage: '请输入客户姓名'
+            }).then(async ({ value }) => {
+                const res = await getOrder();
+                let param = {};
+                param.name = value;
+                // 不是 data
+                param.orderNum = res.msg;
+                console.log(res);
+
+                // 初始化数据
+                this.printData.zhi = 0;
+                this.printData.ge = 0;
+                this.printData.totalWeight = 0.0;
+                this.printData.totalPrice = 0.0;
+                this.printData.totalCap = "";
+                this.initData(param);
                 this.waitShowPrinter = true
                 this.hiprintTemplate.print(this.printData, {}, {
                     callback: () => {
@@ -110,16 +142,19 @@ export default {
                 data.stockOutInfoList = [...this.dataProp].map(item => {
                     return {
                         profileCode: item.profileCode,
-                        changeQuantity: item.quantity
+                        changeQuantity: item.quantity,
+                        changeWeight: item.weight,
+                        changePrice: item.price
                     }
                 });
                 data.state = 1; // 待确定状态
-                const res = await outStock(data);
-                console.log(res);
-            }).catch(() => { });
-
-
-
+                const res1 = outStock(data);
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '取消输入'
+                });
+            });
         },
         toPdf() {
             this.hiprintTemplate.toPdf(this.printData, '打印预览pdf');

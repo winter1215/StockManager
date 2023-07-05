@@ -68,7 +68,7 @@ public class StockServiceImpl implements IStockService
         // 2. 插入到 stock 表
         String profileCode = stock.getProfileCode();
         Stock preStock = stockMapper.selectStockByProfileCode(profileCode);
-
+        Float changeWeight = stock.getWeight();;
         // 不存在则新增,存在则合并
         Long changeQuantity = stock.getQuantity();
         Long preStockQuantity = 0L;
@@ -76,13 +76,14 @@ public class StockServiceImpl implements IStockService
             preStockQuantity = preStock.getQuantity();
             Long newQuantity = preStockQuantity + changeQuantity;
             stock.setQuantity(newQuantity);
+            if (changeWeight == null) {
+                throw new BaseException("重量不能为空");
+            }
+            Float newWeight = preStock.getWeight() + changeWeight;
             // 更新总重量
-            Float totalWeight = newQuantity * preStock.getWeight();
-            stock.setTotalWeight(totalWeight);
+            stock.setWeight(newWeight);
             stockMapper.updateStockQuantity(stock);
         } else {
-            Float totalWeight = stock.getQuantity() * stock.getWeight();
-            stock.setTotalWeight(totalWeight);
             stockMapper.insertStock(stock);
         }
 
@@ -90,6 +91,8 @@ public class StockServiceImpl implements IStockService
         StockLog stockLog = new StockLog();
         BeanUtils.copyProperties(stock, stockLog);
         stockLog.setChangeQuantity(changeQuantity);
+        // 设置变更的重量
+        stockLog.setWeight(changeWeight);
         stockLog.setLogType(StockLogType.STOCKING.getCode());
         stockLog.setQuantity(preStockQuantity);
         return stockLogMapper.insertStockLog(stockLog);
@@ -114,11 +117,8 @@ public class StockServiceImpl implements IStockService
         stockLog.setChangeQuantity(stock.getQuantity() - preStock.getQuantity());
         stockLog.setLogType(StockLogType.USER_OPS.getCode());
         stockLog.setQuantity(preStock.getQuantity());
-        stockLogMapper.insertStockLog(stockLog);
 
-        // 更新总重量
-        Float totalWeight = stock.getQuantity() * stock.getWeight();
-        stock.setTotalWeight(totalWeight);
+        stockLogMapper.insertStockLog(stockLog);
         return stockMapper.updateStock(stock);
     }
 
@@ -140,6 +140,8 @@ public class StockServiceImpl implements IStockService
             StockLog stockLog = new StockLog();
             BeanUtils.copyProperties(item, stockLog);
             stockLog.setChangeQuantity(0L);
+            stockLog.setfId(0L);
+            stockLog.setState(0);
             stockLog.setLogType(StockLogType.DELETE_OPS.getCode());
             stockLogs.add(stockLog);
         });

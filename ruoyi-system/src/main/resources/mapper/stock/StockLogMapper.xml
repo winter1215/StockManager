@@ -25,7 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStockLogVo">
-        select id, f_id, profile_code, color, quantity, change_quantity, weight, profile_name, length, thickness, material_type, price, log_type, create_time, update_time, state, is_delete from stock_log
+        select id, f_id, profile_code, color, quantity, change_quantity, ROUND(weight,2) as weight, profile_name, length, thickness, material_type, price, log_type, create_time, update_time, state, is_delete from stock_log
     </sql>
 
     <select id="selectStockLogList" parameterType="StockLog" resultMap="StockLogResult">
@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectOrder" resultType="java.lang.Long">
         SELECT COUNT(*) FROM stock_log
         WHERE DATE_FORMAT(create_time, '%Y-%m-%d') = DATE_FORMAT(#{currentTime}, '%Y-%m-%d')
-          AND state = 2
+          AND state = 2 AND is_delete = 0
     </select>
 
     <insert id="insertStockLog" parameterType="StockLog" useGeneratedKeys="true" keyProperty="id">

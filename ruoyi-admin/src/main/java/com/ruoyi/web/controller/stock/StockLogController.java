@@ -43,7 +43,6 @@ public class StockLogController extends BaseController
     {
         startPage();
         List<StockLog> list = stockLogService.selectStockLogList(stockLog);
-        list.stream().forEach(item -> item.setWeight(item.getWeight() * item.getQuantity()));
         return getDataTable(list);
     }
 
@@ -122,7 +121,7 @@ public class StockLogController extends BaseController
      * 获取单号
      */
     @PreAuthorize("@ss.hasPermi('stock:log:getOrder')")
-    @PostMapping("/getOrder")
+    @GetMapping("/getOrder")
     public AjaxResult getOrder()
     {
         return success(stockLogService.getOrder());
