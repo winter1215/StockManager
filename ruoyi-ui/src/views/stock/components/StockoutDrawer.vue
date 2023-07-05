@@ -6,7 +6,7 @@
             <el-table-column label="颜色" align="center" prop="color" />
             <el-table-column label="数量" align="center" prop="quantity">
                 <template slot-scope="scope">
-                    {{ `${scope.row.quantity} ${scope.row.materialType === 0 ? "支" : "件"}` }}
+                    {{ `${scope.row.quantity} ${scope.row.materialType === 0 || scope.row.materialType === '支'  ? "支" : "件"}` }}
                 </template>
             </el-table-column>
             <el-table-column label="长度" align="center" prop="length" />

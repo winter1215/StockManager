@@ -72,10 +72,6 @@
     </el-dialog>
     <!-- 清单抽屉 -->
     <el-drawer title="出货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
-      <!-- <el-col :span="1.5" style="margin-right: 20px">
-        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
-          v-hasPermi="['stock:stock:export']">导出清单</el-button>
-      </el-col> -->
       <el-col :span="1.5">
         <el-switch v-model="isList" active-text="清单" inactive-text="打印预览" />
       </el-col>
@@ -261,7 +257,6 @@ export default {
             // 解决正则类型为字符串 -> 类型转换
             this.form.weight = parseFloat(this.form.weight);
             this.form.price = parseFloat(this.form.price);
-            // update totalWeight
             this.stockoutList.push(this.form);
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变

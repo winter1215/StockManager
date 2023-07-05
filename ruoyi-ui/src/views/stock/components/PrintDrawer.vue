@@ -77,7 +77,7 @@ export default {
             }
 
             this.printData.makeDate = this.parseTime(new Date(), '{y}年{m}月{d}日')
-            let tmp = [...this.dataProp]
+            let tmp = [...this.dataProp] //浅拷贝，可能会修改上游数据
             tmp.forEach(item => {
                 item.totalPrice = item.weight * item.price; // 单件的总重
                 item.totalPrice = parseFloat(item.totalPrice.toFixed(2));
@@ -90,18 +90,18 @@ export default {
                 } else {
                     this.printData.ge = this.printData.ge + item.quantity;
                 }
-                item.materialType = item.materialType === 0 ? '支' : '件';
+                    item.materialType = item.materialType === 0 || item.materialType === '支' ? '支' : '件';
                 this.printData.totalWeight = this.printData.totalWeight + item.weight;
             })
             // 打印预览将 总价与总重保留两位小数
             this.printData.totalPrice = parseFloat(this.printData.totalPrice.toFixed(2));
             this.printData.totalWeight = parseFloat(this.printData.totalWeight.toFixed(2));
 
-
             this.printData.totalCap = this.toChinese(this.printData.totalPrice);
-            this.printData.table = this.dataProp;
+            this.printData.table = tmp;
 
         },
+
         show(hiprintTemplate, width = '210') {
             this.width = hiprintTemplate.editingPanel ? hiprintTemplate.editingPanel.width : width;
             this.hiprintTemplate = hiprintTemplate
@@ -111,6 +111,7 @@ export default {
                 this.spinning = false
             }, 500)
         },
+        
         print() {
             this.$prompt('请输入客户姓名', '提示', {
                 confirmButtonText: '确定',
