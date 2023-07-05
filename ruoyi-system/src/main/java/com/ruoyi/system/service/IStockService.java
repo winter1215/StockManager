@@ -72,4 +72,6 @@ public interface IStockService
     List<Stock> selectStockListByIds(Long[] ids);
 
     int updateStocks(List<Stock> updatedStockList);
+
+    float selectTotalWeight();
 }

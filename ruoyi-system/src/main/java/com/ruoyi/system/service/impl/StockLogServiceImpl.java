@@ -159,8 +159,8 @@ public class StockLogServiceImpl implements IStockLogService
             Long changeQuantity = profileCodeChangeQuantityMap.get(profileCode);
             item.setQuantity(item.getQuantity() - changeQuantity);
             // 更新重量
-            float newWeight = (item.getWeight() - profileCodeChangeWeightMap.get(profileCode));
-            item.setWeight(newWeight < 0 ? 0 : newWeight);
+            float newTotalWeight = (item.getTotalWeight() - profileCodeChangeWeightMap.get(profileCode));
+            item.setTotalWeight(newTotalWeight < 0 ? 0 : newTotalWeight);
         });
         // 批量更新
         stockList = stockList.stream().filter(Objects::nonNull).collect(Collectors.toList());

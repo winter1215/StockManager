@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="color"    column="color"    />
         <result property="quantity"    column="quantity"    />
         <result property="weight"    column="weight"    />
+        <result property="totalWeight"    column="total_weight"    />
         <result property="profileName"    column="profile_name"    />
         <result property="length"    column="length"    />
         <result property="thickness"    column="thickness"    />
@@ -21,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStockVo">
-        select id, profile_code, color, quantity, ROUND(weight,2) as weight, profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
+        select id, profile_code, color, quantity, ROUND(weight,2) as weight, total_weight,profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
     </sql>
 
     <select id="selectStockList" parameterType="Stock" resultMap="StockResult">
@@ -31,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null  and color != ''"> and color = #{color}</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
             <if test="weight != null "> and weight = #{weight}</if>
+            <if test="totalWeight != null "> and total_weight = #{totalWeight}</if>
             <if test="profileName != null  and profileName != ''"> and profile_name like concat('%', #{profileName}, '%')</if>
             <if test="length != null "> and length = #{length}</if>
             <if test="thickness != null "> and thickness = #{thickness}</if>
@@ -70,6 +72,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
         and is_delete = 0
     </select>
+    <select id="selectTotalWeight" resultType="java.lang.Float">
+        select SUM(total_weight) from stock;
+    </select>
 
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
         insert into stock
@@ -78,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null and color != ''">color,</if>
             <if test="quantity != null">quantity,</if>
             <if test="weight != null">weight,</if>
+            <if test="totalWeight != null ">total_weight,</if>
             <if test="profileName != null and profileName != ''">profile_name,</if>
             <if test="length != null">length,</if>
             <if test="thickness != null">thickness,</if>
@@ -91,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null and color != ''">#{color},</if>
             <if test="quantity != null">#{quantity},</if>
             <if test="weight != null">#{weight},</if>
+            <if test="totalWeight != null ">#{totalWeight},</if>
             <if test="profileName != null and profileName != ''">#{profileName},</if>
             <if test="length != null">#{length},</if>
             <if test="thickness != null">#{thickness},</if>
@@ -107,6 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null and color != ''">color = #{color},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="weight != null">weight = #{weight},</if>
+            <if test="totalWeight != null">total_weightt = #{totalWeight}</if>
             <if test="profileName != null and profileName != ''">profile_name = #{profileName},</if>
             <if test="length != null">length = #{length},</if>
             <if test="thickness != null">thickness = #{thickness},</if>
@@ -134,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update stock
         <trim prefix="SET" suffixOverrides=",">
             <if test="quantity != null">quantity = #{quantity},</if>
-            <if test="weight != null">weight = #{weight},</if>
+            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
             update_time = sysdate()
         </trim>
         where profile_code = #{profileCode}
@@ -151,11 +159,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     </if>
                 </foreach>
             </trim>
-#             todo： 批量出货更改重量
-            <trim prefix="`weight` = CASE" suffix="END,">
+            <trim prefix="`total_weight` = CASE" suffix="END,">
                 <foreach collection="list" item="item">
-                    <if test="item.weight != null">
-                        WHEN `profile_code` = #{item.profileCode} THEN #{item.weight}
+                    <if test="item.totalWeight != null">
+                        WHEN `profile_code` = #{item.profileCode} THEN #{item.totalWeight}
                     </if>
                 </foreach>
             </trim>
