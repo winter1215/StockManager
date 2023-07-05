@@ -68,20 +68,20 @@ public class StockServiceImpl implements IStockService
         // 2. 插入到 stock 表
         String profileCode = stock.getProfileCode();
         Stock preStock = stockMapper.selectStockByProfileCode(profileCode);
-        Float changeWeight = stock.getWeight();;
+        Float changeTotalWeight = stock.getTotalWeight(); // 新增页面输入的重量
         // 不存在则新增,存在则合并
         Long changeQuantity = stock.getQuantity();
         Long preStockQuantity = 0L;
-        if (preStock != null) {
+        if (preStock != null) { // 存在 需要合并
             preStockQuantity = preStock.getQuantity();
             Long newQuantity = preStockQuantity + changeQuantity;
             stock.setQuantity(newQuantity);
-            if (changeWeight == null) {
-                throw new BaseException("重量不能为空");
+            if (changeTotalWeight == null) {
+                throw new BaseException("总重量不能为空");
             }
-            Float newWeight = preStock.getWeight() + changeWeight;
+            Float newTotalWeight = preStock.getTotalWeight() + changeTotalWeight;
             // 更新总重量
-            stock.setWeight(newWeight);
+            stock.setTotalWeight(newTotalWeight);
             stockMapper.updateStockQuantity(stock);
         } else {
             stockMapper.insertStock(stock);
@@ -92,7 +92,7 @@ public class StockServiceImpl implements IStockService
         BeanUtils.copyProperties(stock, stockLog);
         stockLog.setChangeQuantity(changeQuantity);
         // 设置变更的重量
-        stockLog.setWeight(changeWeight);
+        stockLog.setWeight(changeTotalWeight);
         stockLog.setLogType(StockLogType.STOCKING.getCode());
         stockLog.setQuantity(preStockQuantity);
         return stockLogMapper.insertStockLog(stockLog);
@@ -117,7 +117,7 @@ public class StockServiceImpl implements IStockService
         stockLog.setChangeQuantity(stock.getQuantity() - preStock.getQuantity());
         stockLog.setLogType(StockLogType.USER_OPS.getCode());
         stockLog.setQuantity(preStock.getQuantity());
-
+        stockLog.setWeight(stock.getTotalWeight() - preStock.getTotalWeight()); // 日志记录变更
         stockLogMapper.insertStockLog(stockLog);
         return stockMapper.updateStock(stock);
     }
@@ -189,4 +189,11 @@ public class StockServiceImpl implements IStockService
     public int updateStocks(List<Stock> updatedStockList) {
         return stockMapper.batchUpdateStock(updatedStockList);
     }
+
+    @Override
+    public float selectTotalWeight() {
+        return stockMapper.selectTotalWeight();
+    }
+
+
 }

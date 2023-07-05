@@ -37,8 +37,12 @@ public class Stock extends BaseEntity
     private Long quantity;
 
     /** 重量 */
-    @Excel(name = "总重量")
+    @Excel(name = "重量")
     private Float weight;
+
+    /** 重量 */
+    @Excel(name = "总重量")
+    private Float totalWeight;
 
     /** 型材名称 */
     @Excel(name = "型材名称")
@@ -86,7 +90,15 @@ public class Stock extends BaseEntity
         this.color = color;
     }
 
-    public String getColor() 
+    public Float getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Float totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public String getColor()
     {
         return color;
     }

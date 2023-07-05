@@ -67,4 +67,6 @@ public interface StockMapper
     List<Stock> selectStockByProfileCodes(List<String> profileCodeList);
 
     int batchUpdateStock(List<Stock> stockList);
+
+    float selectTotalWeight();
 }
