@@ -22,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStockVo">
-        select id, profile_code, color, quantity, ROUND(weight,2) as weight, total_weight,profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
+        select id, profile_code, color, quantity, ROUND(weight,2) as weight, ROUND(total_weight, 2) as total_weight,profile_name, length, thickness, material_type, price, create_time, update_time, is_delete from stock
     </sql>
 
     <select id="selectStockList" parameterType="Stock" resultMap="StockResult">

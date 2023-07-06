@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.ruoyi.common.exception.base.BaseException;
 import com.ruoyi.system.domain.StockLog;
 import com.ruoyi.system.domain.StockOutInfo;
+import com.ruoyi.system.domain.dto.StockListDto;
 import com.ruoyi.system.domain.dto.StockOutDto;
 import com.ruoyi.system.service.IStockLogService;
 import io.swagger.annotations.Api;
@@ -49,11 +50,16 @@ public class StockController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('stock:stock:list')")
     @GetMapping("/list")
-    public TableDataInfo list(Stock stock)
+    public AjaxResult list(Stock stock)
     {
         startPage();
         List<Stock> list = stockService.selectStockList(stock);
-        return getDataTable(list);
+        float totalWeight = stockService.selectTotalWeight();
+        TableDataInfo dataTable = getDataTable(list);
+        StockListDto listDto = new StockListDto();
+        listDto.setDataTable(dataTable);
+        listDto.setTotalWeight(totalWeight);
+        return success(listDto);
     }
 
     /**
@@ -225,14 +231,4 @@ public class StockController extends BaseController
         }
         return toAjax(true);
     }
-
-
-    @PreAuthorize("@ss.hasPermi('stock:stock:totatl')")
-    @ApiOperation("获取全部总重量")
-    @GetMapping("/getTotal")
-    public AjaxResult getTotal() {
-        float totalWeight = stockService.selectTotalWeight();
-        return success(totalWeight);
-    }
-
 }
