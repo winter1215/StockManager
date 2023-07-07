@@ -147,7 +147,6 @@ public class StockController extends BaseController
         // 传入数据里面存了型材编码 和 出货的数量 以及 出货的状态
         List<StockOutInfo> stockOutInfos = stockOutDto.getStockOutInfoList();
         Integer state = stockOutDto.getState();
-
         // format
         List<String> profileCodeList = stockOutInfos.stream()
                 .map(StockOutInfo::getProfileCode)
