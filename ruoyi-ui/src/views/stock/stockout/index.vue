@@ -1,68 +1,26 @@
 <template>
   <div class="app-container">
-    <el-form
-      :model="queryParams"
-      ref="queryForm"
-      size="small"
-      :inline="true"
-      v-show="showSearch"
-      label-width="68px"
-    >
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="型材编码" prop="profileCode">
-        <el-input
-          v-model="queryParams.profileCode"
-          placeholder="请输入型材编码"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.profileCode" placeholder="请输入型材编码" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="颜色" prop="color">
-        <el-input
-          v-model="queryParams.color"
-          placeholder="请输入颜色"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.color" placeholder="请输入颜色" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="数量" prop="quantity">
-        <el-input
-          v-model="queryParams.quantity"
-          placeholder="请输入数量"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.quantity" placeholder="请输入数量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="总重量" prop="weight">
-        <el-input
-          v-model="queryParams.weight"
-          placeholder="请输入总重量"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.weight" placeholder="请输入总重量" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="型材名称" prop="profileName">
-        <el-input
-          v-model="queryParams.profileName"
-          placeholder="请输入型材名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.profileName" placeholder="请输入型材名称" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="长度" prop="length">
-        <el-input
-          v-model="queryParams.length"
-          placeholder="请输入长度"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.length" placeholder="请输入长度" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="厚度" prop="thickness">
-        <el-input
-          v-model="queryParams.thickness"
-          placeholder="请输入厚度"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.thickness" placeholder="请输入厚度" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="单位" prop="materialType">
         <el-select v-model="queryParams.materialType" placeholder="请选择单位">
@@ -71,52 +29,24 @@
         </el-select>
       </el-form-item>
       <el-form-item label="进货单价" prop="price">
-        <el-input
-          v-model="queryParams.price"
-          placeholder="请输入型材进货单价"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.price" placeholder="请输入型材进货单价" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          size="mini"
-          @click="handleQuery"
-          >搜索</el-button
-        >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button
-        >
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          @click="drawerShow = true"
-          v-hasPermi="['stock:stock:list']"
-          >查看清单</el-button
-        >
+        <el-button type="success" plain icon="el-icon-delete" size="mini" @click="drawerShow = true"
+          v-hasPermi="['stock:stock:list']">查看清单</el-button>
       </el-col>
-      <right-toolbar
-        :showSearch.sync="showSearch"
-        @queryTable="getList"
-      ></right-toolbar>
+      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <!-- 出货数量修改库存对话框 -->
-    <el-dialog
-      title="出货面板"
-      :visible.sync="open"
-      width="500px"
-      append-to-body
-    >
+    <el-dialog title="出货面板" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="型材编码" prop="profileCode">
           <el-input v-model="form.profileCode" disabled />
@@ -125,10 +55,7 @@
           <el-input v-model="form.profileName" disabled />
         </el-form-item>
         <el-form-item label="出货数量" prop="quantity">
-          <el-input
-            v-model.number="form.quantity"
-            placeholder="请输入出货数量"
-          />
+          <el-input v-model.number="form.quantity" placeholder="请输入出货数量" />
         </el-form-item>
         <!-- <el-form-item label="出货重量" prop="weight">
           <el-input v-model="form.weight" placeholder="请输入出货重量" />
@@ -144,28 +71,14 @@
       </div>
     </el-dialog>
     <!-- 清单抽屉 -->
-    <el-drawer
-      title="出货清单"
-      :visible.sync="drawerShow"
-      direction="rtl"
-      size="50%"
-    >
+    <el-drawer title="出货清单" :visible.sync="drawerShow" direction="rtl" size="50%">
       <el-col :span="1.5">
-        <el-switch
-          v-model="isList"
-          active-text="清单"
-          inactive-text="打印预览"
-        />
+        <el-switch v-model="isList" active-text="清单" inactive-text="打印预览" />
       </el-col>
 
       <div style="margin-top: 20px">
         <keep-alive>
-          <component
-            :is="currentComponent"
-            ref="printer"
-            :dataProp="stockoutList"
-            @handleMoveOut="handleMoveOut"
-          ></component>
+          <component :is="currentComponent" ref="printer" :dataProp="stockoutList" @handleMoveOut="handleMoveOut"></component>
         </keep-alive>
       </div>
     </el-drawer>
@@ -178,55 +91,31 @@
       <el-table-column label="颜色" align="center" prop="color" />
       <el-table-column label="数量" align="center" prop="quantity">
         <template slot-scope="scope">
-          {{
-            `${scope.row.quantity} ${
-              scope.row.materialType === 0 ? "支" : "件"
-            }`
-          }}
+          {{ `${scope.row.quantity} ${scope.row.materialType === 0 ? "支" : "件"}` }}
         </template>
       </el-table-column>
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="总重量(kg)" align="center" prop="weight" />
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="单重" align="center" prop="weight" />
+      <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            v-if="scope.row.inDrawer"
-            size="mini"
-            type="danger"
-            icon="el-icon-delete"
-            @click="handleMoveOut(scope.row, 0)"
-            >移出清单</el-button
-          >
-          <el-button
-            v-else
-            size="mini"
-            type="primary"
-            icon="el-icon-delete"
-            @click="openDialog(scope.row)"
-            >移入清单</el-button
-          >
+          <el-button v-if="scope.row.inDrawer" size="mini" type="danger" icon="el-icon-delete"
+            @click="handleMoveOut(scope.row, 0)">移出清单</el-button>
+          <el-button v-else size="mini" type="primary" icon="el-icon-delete"
+            @click="openDialog(scope.row)">移入清单</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <pagination
-      v-show="total > 0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+      @pagination="getList" />
   </div>
 </template>
 
 <script>
 import { listStock } from "@/api/stock/stock";
-import { genExcel } from "@/utils/excel";
+import { genExcel } from '@/utils/excel'
 import StockoutDrawer from "../components/StockoutDrawer.vue";
 import PrintDrawer from "../components/PrintDrawer.vue";
 
@@ -257,15 +146,15 @@ export default {
       rules: {
         quantity: [
           { required: true, message: "出货数量不能为空", trigger: "blur" },
-          { type: "number", message: "必须为整数" },
+          { type: 'number', message: "必须为整数" }
         ],
         weight: [
           { required: true, message: "出货重量不能为空", trigger: "blur" },
-          { pattern: /^\d+(\.\d+)?$/, message: "必须为数字类型" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
         price: [
           { required: true, message: "型材进货单价不能为空", trigger: "blur" },
-          { pattern: /^\d+(\.\d+)?$/, message: "必须为数字类型" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
       },
       // 是否显示弹出层
@@ -283,14 +172,14 @@ export default {
         thickness: null,
         materialType: null,
         price: null,
-        isDelete: null,
+        isDelete: null
       },
     };
   },
 
   components: {
     StockoutDrawer,
-    PrintDrawer,
+    PrintDrawer
   },
 
   created() {
@@ -300,22 +189,22 @@ export default {
   watch: {
     isList(newVal) {
       this.currentComponent = newVal ? StockoutDrawer : PrintDrawer;
-    },
+    }
   },
 
   methods: {
+
     /** 查询库存列表 */
     getList() {
       this.loading = true;
-      listStock(this.queryParams).then((response) => {
-        response.data.dataTable.rows.map((item) => {
+      listStock(this.queryParams).then(response => {
+        response.data.dataTable.rows.map(item => {
           if (this.ids.has(item.id)) {
             item.inDrawer = true;
           } else {
             item.inDrawer = false;
           }
-        });
-        console.log(response);
+        })
         this.stockList = response.data.dataTable.rows;
         this.total = response.data.dataTable.total;
         this.loading = false;
@@ -334,31 +223,24 @@ export default {
     },
     // 当前列是否存在出货清单中
     inDrawer(id) {
-      return this.ids.has(id);
+      return this.ids.has(id)
     },
     openDialog(row) {
-      this.form = { ...row };
+      this.form = { ...row }
       this.form.quantity = null;
-      this.form.weight = null;
-      this.open = true;
+      this.open = true
     },
     // 移入抽屉中的元素
     handleMoveIn() {
-      this.$refs["form"].validate((valid) => {
+      this.$refs["form"].validate(valid => {
         if (valid) {
           const id = this.form.id;
           const flag = this.ids.has(id);
-          console.log(this.form);
-          if (!flag) {
-            const stock = this.stockList.filter(
-              (item) => item.id === this.form.id
-            )[0];
 
-            if (
-              !this.form.quantity ||
-              this.form.quantity > stock.quantity ||
-              this.form.quantity <= 0
-            ) {
+          if (!flag) {
+            const stock = this.stockList.filter(item => item.id === this.form.id)[0]
+
+            if (!this.form.quantity || this.form.quantity > stock.quantity || this.form.quantity <= 0) {
               this.$message.error("出货数量有误");
               return;
             }
@@ -380,32 +262,34 @@ export default {
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变
             if (stock) {
-              stock.inDrawer = true;
+              stock.inDrawer = true
             }
-            this.$message.success("移入成功");
+            this.$message.success("移入成功")
           } else {
-            this.$message.warning("请勿重复添加");
+            this.$message.warning("请勿重复添加")
           }
           this.open = false;
         }
       });
+
+
     },
 
     // 移除抽屉中的元素: type: 0 库存页面移除, type = 1 抽屉中移除
     handleMoveOut(row, type = 0) {
       // 该场景中 stockoutList 不适合用 set,因为 has，delete 等是通过引用的，在这里引用可能由于分页的存在不相同，我们需要的是通过 id 来比较
-      this.stockoutList = this.stockoutList.filter((item) => item.id != row.id);
+      this.stockoutList = this.stockoutList.filter(item => item.id != row.id);
 
       this.ids.delete(row.id);
       if (type === 0) {
         row.inDrawer = false;
       } else {
-        let item = this.stockList.filter((item) => item.id === row.id)[0];
+        let item = this.stockList.filter(item => item.id === row.id)[0];
         if (item) {
           item.inDrawer = false;
         }
       }
-      this.$message.warning("移出成功");
+      this.$message.warning("移出成功")
     },
     /** 导出按钮操作 */
     // handleExport() {
@@ -413,8 +297,8 @@ export default {
     // },
 
     printStockout() {
-      alert(this.stockoutList);
-    },
-  },
+      alert(this.stockoutList)
+    }
+  }
 };
 </script>
