@@ -112,7 +112,8 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="总重量(kg)" align="center" sortable="custom" prop="weight" />
+      <el-table-column label="单重" align="center" sortable="custom" prop="weight" />
+      <el-table-column label="总重量(kg)" align="center" sortable="custom" prop="totalWeight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-if="scope.row.inDrawer" size="mini" type="danger" icon="el-icon-delete"
@@ -195,7 +196,7 @@ export default {
     getList() {
       this.loading = true;
       listStock(this.queryParams).then(response => {
-        response.rows.map(item => {
+        response.data.dataTable.rows.map(item => {
           if (this.ids.has(item.id)) {
             item.inDrawer = true;
           } else {

@@ -97,7 +97,8 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="总重量(kg)" align="center" prop="weight" />
+      <el-table-column label="单重" align="center" prop="weight" />
+      <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-if="scope.row.inDrawer" size="mini" type="danger" icon="el-icon-delete"
@@ -204,7 +205,6 @@ export default {
             item.inDrawer = false;
           }
         })
-        console.log(response);
         this.stockList = response.data.dataTable.rows;
         this.total = response.data.dataTable.total;
         this.loading = false;
@@ -228,7 +228,6 @@ export default {
     openDialog(row) {
       this.form = { ...row }
       this.form.quantity = null;
-      this.form.weight = null;
       this.open = true
     },
     // 移入抽屉中的元素
