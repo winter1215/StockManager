@@ -57,12 +57,12 @@
         <el-form-item label="出货数量" prop="quantity">
           <el-input v-model.number="form.quantity" placeholder="请输入出货数量" />
         </el-form-item>
-        <el-form-item label="出货重量" prop="weight">
+        <!-- <el-form-item label="出货重量" prop="weight">
           <el-input v-model="form.weight" placeholder="请输入出货重量" />
         </el-form-item>
         <el-form-item label="出货单价" prop="price">
           <el-input v-model="form.price" placeholder="请输入型材进货单价" />
-        </el-form-item>
+        </el-form-item> -->
         <!-- 是否需要出货价格 -->
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -192,19 +192,21 @@ export default {
   },
 
   methods: {
+    
     /** 查询库存列表 */
     getList() {
       this.loading = true;
       listStock(this.queryParams).then(response => {
-        response.rows.map(item => {
+        response.data.dataTable.rows.map(item => {
           if (this.ids.has(item.id)) {
             item.inDrawer = true;
           } else {
             item.inDrawer = false;
           }
         })
-        this.stockList = response.rows;
-        this.total = response.total;
+        console.log(response);
+        this.stockList = response.data.dataTable.rows;
+        this.total = response.data.dataTable.total;
         this.loading = false;
       });
     },
@@ -244,19 +246,19 @@ export default {
               return;
             }
 
-            if (!this.form.weight || this.form.weight <= 0) {
-              this.$message.error("出货重量有误");
-              return;
-            }
+            // if (!this.form.weight || this.form.weight <= 0) {
+            //   this.$message.error("出货重量有误");
+            //   return;
+            // }
 
-            if (!this.form.price || this.form.price <= 0) {
-              this.$message.error("出货单价有误");
-              return;
-            }
+            // if (!this.form.price || this.form.price <= 0) {
+            //   this.$message.error("出货单价有误");
+            //   return;
+            // }
             
             // 解决正则类型为字符串 -> 类型转换
-            this.form.weight = parseFloat(this.form.weight);
-            this.form.price = parseFloat(this.form.price);
+            // this.form.weight = parseFloat(this.form.weight);
+            // this.form.price = parseFloat(this.form.price);
             this.stockoutList.push(this.form);
             this.ids.add(id);
             // 移入成功后将 list 中的对应 id 的对象 inDrawer 改变

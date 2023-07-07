@@ -38,12 +38,13 @@ export default {
                 zhi: 0,
                 ge: 0,
                 totalWeight: 0.0,
-                totalPrice: 0.0,
+                totalPrice: 999999,
                 totalCap: ""
             }
         }
     },
     created() {
+        console.log(template)
     },
     mounted() {
         this.init();

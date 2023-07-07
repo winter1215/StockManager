@@ -27,7 +27,7 @@
       </el-form-item>
       <el-form-item label="总重量(kg)" prop="weight">
         <el-input
-          v-model="queryParams.weight"
+          v-model="queryParams.totalWeight"
           placeholder="请输入总重量(kg)"
           clearable
           @keyup.enter.native="handleQuery"
@@ -120,6 +120,9 @@
           v-hasPermi="['stock:stock:export']"
         >导出</el-button>
       </el-col>
+      <el-col :span="1.5" style="float: right;">
+       总重量： {{ totalWeight }}
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -137,7 +140,8 @@
       <el-table-column label="长度" align="center" prop="length" />
       <el-table-column label="厚度" align="center" prop="thickness" />
       <el-table-column label="进货单价" align="center" prop="price" />
-      <el-table-column label="总重量(kg)" align="center" prop="weight" />
+      <el-table-column label="单重" align="center" prop="weight" />
+      <el-table-column label="总重量(kg)" align="center" prop="totalWeight" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -157,7 +161,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -177,10 +181,13 @@
           <el-input v-model="form.color" placeholder="请输入颜色" />
         </el-form-item>
         <el-form-item label="数量" prop="quantity">
-          <el-input v-model.number="form.quantity" placeholder="请输入数量" />
+          <el-input v-model.number="form.quantity" placeholder="请输入数量" @input="caculateTotalWeight"/>
         </el-form-item>
-        <el-form-item label="总重量(kg)" prop="weight">
-          <el-input v-model="form.weight" placeholder="请输入总重量" />
+        <el-form-item label="单重" prop="weight">
+          <el-input v-model="form.weight" placeholder="请输入单重" @input="caculateTotalWeight"/>
+        </el-form-item>
+        <el-form-item label="总重量" prop="totalWeight">
+          <el-input v-model="form.totalWeight" placeholder="请输入总重" />
         </el-form-item>
         <el-form-item label="型材名称" prop="profileName">
           <el-input v-model="form.profileName" placeholder="请输入型材名称" />
@@ -233,6 +240,8 @@ export default {
       total: 0,
       // 库存表格数据
       stockList: [],
+      // 所有型材的总重
+      totalWeight: 0,
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -245,6 +254,7 @@ export default {
         color: null,
         quantity: null,
         weight: null,
+        totalWeight: null,
         profileName: null,
         length: null,
         thickness: null,
@@ -268,6 +278,10 @@ export default {
         ],
         weight: [
           { required: true, message: "重量不能为空", trigger: "blur" },
+          { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
+        ],
+        totalWeight: [
+          { required: true, message: "总重量不能为空", trigger: "blur" },
           { pattern: /^\d+(\.\d+)?$/, message: '必须为数字类型' }
         ],
         profileName: [
@@ -296,8 +310,9 @@ export default {
     getList() {
       this.loading = true;
       listStock(this.queryParams).then(response => {
-        this.stockList = response.rows;
-        this.total = response.total;
+        this.stockList = response.data.dataTable.rows;
+        this.total = response.data.dataTable.total;
+        this.totalWeight = response.data.totalWeight;
         this.loading = false;
       });
     },
@@ -314,6 +329,7 @@ export default {
         color: null,
         quantity: null,
         weight: null,
+        totalWeight: null,
         profileName: null,
         length: null,
         thickness: null,
@@ -353,7 +369,7 @@ export default {
       const res = await getStockByCode(this.form.profileCode);
       this.addLoading = false;
       res.data.quantity = null;
-      res.data.weight = null;
+      res.data.totalWeight = null;
       res.data.id = null;
       this.form = res.data;
 
@@ -392,6 +408,16 @@ export default {
           }
         }
       });
+    },
+
+    // 计算总重
+    caculateTotalWeight(e) {
+      if(this.form.quantity && this.form.weight) {
+        // 字符串转浮点数
+        let tmpWeight = parseFloat(this.form.weight);
+        let tmpTotalWeight = (this.form.quantity * tmpWeight).toString();
+        this.form.totalWeight = tmpTotalWeight;
+      }
     },
     /** 删除按钮操作 */
     handleDelete(row) {

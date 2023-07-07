@@ -72,8 +72,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
         and is_delete = 0
     </select>
+
     <select id="selectTotalWeight" resultType="java.lang.Float">
-        select SUM(total_weight) from stock;
+        select ROUND(SUM(total_weight),2) as total_weight  from stock where is_delete = 0;
     </select>
 
     <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
@@ -114,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="color != null and color != ''">color = #{color},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="weight != null">weight = #{weight},</if>
-            <if test="totalWeight != null">total_weightt = #{totalWeight}</if>
+            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
             <if test="profileName != null and profileName != ''">profile_name = #{profileName},</if>
             <if test="length != null">length = #{length},</if>
             <if test="thickness != null">thickness = #{thickness},</if>

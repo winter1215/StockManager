@@ -202,8 +202,8 @@ export default {
             item.inDrawer = false;
           }
         })
-        this.stockList = response.rows;
-        this.total = response.total;
+        this.stockList = response.data.dataTable.rows;
+        this.total = response.data.dataTable.total;
         this.loading = false;
       });
     },

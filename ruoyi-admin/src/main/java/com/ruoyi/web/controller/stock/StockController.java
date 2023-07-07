@@ -231,4 +231,14 @@ public class StockController extends BaseController
         }
         return toAjax(true);
     }
+
+
+    @PreAuthorize("@ss.hasPermi('stock:stock:totatl')")
+    @ApiOperation("获取全部总重量")
+    @GetMapping("/getTotal")
+    public AjaxResult getTotal() {
+        float totalWeight = stockService.selectTotalWeight();
+        return success(totalWeight);
+    }
+
 }
