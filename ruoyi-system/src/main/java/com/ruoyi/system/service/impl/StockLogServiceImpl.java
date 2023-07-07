@@ -151,9 +151,21 @@ public class StockLogServiceImpl implements IStockLogService
         // 组装出 stockLogList Map
         Map<String, Long> profileCodeChangeQuantityMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getChangeQuantity));
         Map<String, Float> profileCodeChangeWeightMap = stockLogList.stream().collect(Collectors.toMap(StockLog::getProfileCode, StockLog::getWeight));
-        stockList.forEach(item -> {
+//        stockList.forEach(item -> {
+//            if (item == null) {
+//                return;
+//            }
+//            String profileCode = item.getProfileCode();
+//            Long changeQuantity = profileCodeChangeQuantityMap.get(profileCode);
+//            item.setQuantity(item.getQuantity() - changeQuantity);
+//            // 更新重量
+//            float newTotalWeight = (item.getTotalWeight() - profileCodeChangeWeightMap.get(profileCode));
+//            item.setTotalWeight(newTotalWeight < 0 ? 0 : newTotalWeight);
+//        });
+
+        for (Stock item : stockList) {
             if (item == null) {
-                return;
+                continue;
             }
             String profileCode = item.getProfileCode();
             Long changeQuantity = profileCodeChangeQuantityMap.get(profileCode);
@@ -161,7 +173,7 @@ public class StockLogServiceImpl implements IStockLogService
             // 更新重量
             float newTotalWeight = (item.getTotalWeight() - profileCodeChangeWeightMap.get(profileCode));
             item.setTotalWeight(newTotalWeight < 0 ? 0 : newTotalWeight);
-        });
+        }
         // 批量更新
         stockList = stockList.stream().filter(Objects::nonNull).collect(Collectors.toList());
         return stockMapper.batchUpdateStock(stockList);

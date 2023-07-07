@@ -1,7 +1,9 @@
 package com.ruoyi.web.controller.stock;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
@@ -161,6 +163,10 @@ public class StockController extends BaseController
                 .map(StockOutInfo::getChangePrice)
                 .collect(Collectors.toList());
         // 1. 用型材编码查到对应的stock记录
+        Map<String, StockOutInfo> stockOutMap = new HashMap<>();
+        for (int i = 0; i < profileCodeList.size(); i ++ ) {
+            stockOutMap.put(profileCodeList.get(i), stockOutInfos.get(i));
+        }
         List<Stock> stockList = stockService.selectStockByProfileCodes(profileCodeList);
 
         // 遇到 null 抛出异常，说明该批数据有错
@@ -186,9 +192,9 @@ public class StockController extends BaseController
         BeanUtils.copyProperties(stockList.get(0), head);
         head.setId(0L);
         head.setfId(0L);
-        head.setChangeQuantity(changeQuantityList.get(0));
-        head.setWeight(changeWeightList.get(0) == null ? 0 : changeWeightList.get(0));
-        head.setPrice(changePriceList.get(0) == null ? 0 : changePriceList.get(0));
+        head.setChangeQuantity(stockOutMap.get(stockList.get(0).getProfileCode()).getChangeQuantity());
+        head.setWeight(stockOutMap.get(stockList.get(0).getProfileCode()).getChangeWeight() == null ? 0 : stockOutMap.get(stockList.get(0).getProfileCode()).getChangeWeight());
+        head.setPrice(stockOutMap.get(stockList.get(0).getProfileCode()).getChangePrice() == null ? 0 : stockOutMap.get(stockList.get(0).getProfileCode()).getChangePrice());
         head.setState(1);
         head.setLogType(1);
         stockLogService.insertStockLog(head);
@@ -201,9 +207,9 @@ public class StockController extends BaseController
             StockLog stockLog = new StockLog();
             BeanUtils.copyProperties(stockList.get(i), stockLog);
             stockLog.setfId(fId);
-            stockLog.setChangeQuantity(changeQuantityList.get(i));
-            stockLog.setWeight(changeWeightList.get(i) == null ? 0 : changeWeightList.get(i));
-            stockLog.setPrice(changePriceList.get(i) == null ? 0 : changePriceList.get(i));
+            stockLog.setChangeQuantity(stockOutMap.get(stockList.get(i).getProfileCode()).getChangeQuantity());
+            stockLog.setWeight(stockOutMap.get(stockList.get(i).getProfileCode()).getChangeWeight() == null ? 0 : stockOutMap.get(stockList.get(i).getProfileCode()).getChangeWeight());
+            stockLog.setPrice(stockOutMap.get(stockList.get(i).getProfileCode()).getChangePrice() == null ? 0 : stockOutMap.get(stockList.get(i).getProfileCode()).getChangePrice());
             stockLog.setState(0);
             stockLog.setLogType(1);
             stockLogList.add(stockLog);
