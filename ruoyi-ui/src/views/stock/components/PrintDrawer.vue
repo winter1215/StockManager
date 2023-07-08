@@ -35,7 +35,7 @@
           <el-input v-model="form.weight" placeholder="请输入出货总重(数字)" />
         </el-form-item>
         <el-form-item label="其他费用" prop="otherCost">
-          <el-input v-model="form.otherCost" placeholder="请输入其他费用(文字描述)" />
+          <el-input v-model="form.otherCost" placeholder="请输入其他费用(数字)" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -71,11 +71,16 @@ export default {
       hiprintTemplate: {},
       // 数据
       printData: {
-        zhi: 0,
-        ge: 0,
+        // zhi: 0,
+        // ge: 0,
+        // 数量
+        number: 0,
+        // 价格
+        price: 0.0,
         totalWeight: 0.0,
         totalPrice: 0,
         totalCap: "",
+        // 其他费用
         otherCost: "",
       },
     };
@@ -91,8 +96,7 @@ export default {
   },
   watch: {
     dataProp(newVal) {
-      this.printData.zhi = 0;
-      this.printData.ge = 0;
+      this.printData.number = 0;
       this.printData.totalWeight = 0.0;
       this.printData.totalPrice = 0.0;
       this.printData.totalCap = "";
@@ -117,16 +121,19 @@ export default {
         // item.totalPrice = parseFloat(item.totalPrice.toFixed(2));
         // this.printData.totalPrice = this.printData.totalPrice + item.totalPrice; // 出货单的总重
 
-        if (item.materialType === 0 || item.materialType === "支") {
-          this.printData.zhi = this.printData.zhi + item.quantity;
-        } else {
-          this.printData.ge = this.printData.ge + item.quantity;
-        }
+        // 支 件个数 -> 数量
+        // if (item.materialType === 0 || item.materialType === "支") {
+        //   this.printData.zhi = this.printData.zhi + item.quantity;
+        // } else {
+        //   this.printData.ge = this.printData.ge + item.quantity;
+        // }
+
+        this.printData.number = this.printData.number + item.quantity;
         item.materialType =
           item.materialType === 0 || item.materialType === "支" ? "支" : "件";
         // this.printData.totalWeight = this.printData.totalWeight + item.weight;
       });
-      // 打印预览将 总价与总重保留两位小数
+      // 打印预览将 总价与总重保留两位小数(需求更改)
       // this.printData.totalPrice = parseFloat(this.printData.totalPrice.toFixed(2));
       // this.printData.totalWeight = parseFloat(this.printData.totalWeight.toFixed(2));
 
@@ -150,7 +157,12 @@ export default {
 
     print() {
       this.dialogFormVisible = true;
-      this.form = {};
+      this.form = {        
+        name: '',
+        price: '',
+        weight: '',
+        otherCost: ''
+      };
       // this.$prompt('请输入客户姓名', '提示', {
       //     confirmButtonText: '确定',
       //     cancelButtonText: '取消',
@@ -198,18 +210,31 @@ export default {
     },
 
     async doprint() {
+      // 校验
+      if (isNaN(parseFloat(this.form.price)) || isNaN(parseFloat(this.form.weight)) || isNaN(parseFloat(this.form.otherCost))) {
+        this.$message.warning("请检查输入是否为数字")
+        return;
+      }
+
+      // 类型转换
+      this.form.price = parseFloat(this.form.price);
+      this.form.weight = parseFloat(this.form.weight);
+      this.form.otherCost = parseFloat(this.form.otherCost);
+
+
       const res = await getOrder();
       // 不是 data
       this.printData.name = this.form.name;
       this.printData.totalWeight = this.form.weight;
-      // 总金额四舍五入
-      this.printData.totalPrice = Math.round(this.form.weight * this.form.price);
+      // 总金额四舍五入(打印时加上其他费用)
+      this.printData.totalPrice = Math.round((this.form.weight * this.form.price) + this.form.otherCost);
+
       this.printData.otherCost = this.form.otherCost;
       this.printData.orderNum = res.msg;
+      this.printData.price = this.form.price;
 
       // 初始化数据
-      this.printData.zhi = 0;
-      this.printData.ge = 0;
+      this.printData.number = 0;
       this.printData.totalCap = "";
       this.initData();
       this.waitShowPrinter = true;
