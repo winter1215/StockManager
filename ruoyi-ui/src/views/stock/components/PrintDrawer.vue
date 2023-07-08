@@ -29,10 +29,13 @@
           <el-input v-model.number="form.name" placeholder="请输入客户名称" />
         </el-form-item>
         <el-form-item label="价格" prop="price">
-          <el-input v-model="form.price" placeholder="请输入出货价格" />
+          <el-input v-model="form.price" placeholder="请输入出货价格(数字)" />
         </el-form-item>
         <el-form-item label="重量" prop="weight">
-          <el-input v-model="form.weight" placeholder="请输入出货总重" />
+          <el-input v-model="form.weight" placeholder="请输入出货总重(数字)" />
+        </el-form-item>
+        <el-form-item label="其他费用" prop="otherCost">
+          <el-input v-model="form.otherCost" placeholder="请输入其他费用(文字描述)" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -73,6 +76,7 @@ export default {
         totalWeight: 0.0,
         totalPrice: 0,
         totalCap: "",
+        otherCost: "",
       },
     };
   },
@@ -198,16 +202,15 @@ export default {
       // 不是 data
       this.printData.name = this.form.name;
       this.printData.totalWeight = this.form.weight;
-      this.printData.totalPrice = parseFloat(
-        (this.form.weight * this.form.price).toFixed(2)
-      );
+      // 总金额四舍五入
+      this.printData.totalPrice = Math.round(this.form.weight * this.form.price);
+      this.printData.otherCost = this.form.otherCost;
       this.printData.orderNum = res.msg;
 
       // 初始化数据
       this.printData.zhi = 0;
       this.printData.ge = 0;
       this.printData.totalCap = "";
-      this.printData.name;
       this.initData();
       this.waitShowPrinter = true;
       this.hiprintTemplate.print(
